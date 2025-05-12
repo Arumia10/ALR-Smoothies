@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VitaminBoost ALR – Fresh Smoothies</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; max-width: 600px; margin: 0 auto; background: #fff; color: #333; line-height:1.4; }
+    :root { --accent: #0071e3; }
+    header { position: sticky; top: 0; background: #fff; padding: 1rem; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.4rem; font-weight: 600; }
+    nav a { margin-left: 1rem; text-decoration: none; color: #333; font-size: .9rem; }
+    nav a:hover { color: #777; }
+    .hero { text-align: center; padding: 3rem 1rem; }
+    .hero h1 { font-size: 2rem; margin-bottom: .5rem; }
+    .hero p { color: #666; font-size: 1.1rem; margin-bottom: 1.5rem; }
+    .btn { background: var(--accent); color: #fff; padding: .7rem 1.4rem; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; text-decoration: none; transition: background .3s; }
+    .btn:hover { background: #005bb8; }
+    .btn-secondary { background: #ccc; color: #333; }
+    .btn-secondary:hover { background: #bbb; }
+    section { padding: 2rem 1rem; }
+    .vacuum { text-align: center; background: #f9f9f9; }
+    .vacuum h2 { font-size: 1.6rem; margin-bottom: .5rem; }
+    .vacuum p { max-width: 500px; margin: 0 auto 1.5rem; color: #555; }
+    .vacuum img { width: 100%; max-width: 500px; border-radius: 8px; margin: 0 auto 1rem; display: block; }
+    .vacuum .sub { color: #555; font-size: .9rem; margin-bottom: 1.5rem; }
+    .menu h2 { text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .cards { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    @media(min-width:768px) { .cards { grid-template-columns: repeat(2,1fr); } }
+    @media(min-width:992px) { .cards { grid-template-columns: repeat(3,1fr); } }
+    .card { background: #fafafa; border: 1px solid #eaeaea; border-radius: 10px; overflow: hidden; }
+    .card img { width: 100%; display: block; }
+    .card-content { padding: 1rem; text-align: center; }
+    .card-content h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+    .card-content p { color: #555; font-size: .9rem; margin-bottom: .3rem; }
+    .card-content .sub { color: #777; font-size: .85rem; margin-bottom: .5rem; }
+    .price { font-weight: bold; margin-bottom: 1rem; display: block; }
+    .cart-panel { text-align: center; background: #fff; }
+    .cart-panel h2 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .cart-items { text-align: left; margin-bottom: 1rem; }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: .5rem; }
+    .cart-total { font-weight: 600; margin-bottom: 1.5rem; }
+    #order-btn { background: var(--accent); color: #fff; padding: .7rem 1.4rem; border: none; border-radius: 6px; cursor: pointer; transition: background .3s; }
+    #order-btn:hover { background: #005bb8; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background: #fff; padding: 1.5rem; border-radius: 8px; text-align: center; width: 90%; max-width: 400px; position: relative; }
+    .close { position: absolute; top: 1rem; right: 1rem; cursor: pointer; font-size: 1.2rem; }
+    .modal-content input, .modal-content select { width: 100%; padding: .5rem; margin: .5rem 0; border: 1px solid #ddd; border-radius: 6px; }
+    #qr-code { width: 200px; height: 200px; margin: 1rem auto; }
+    .contact-section { text-align: center; }
+    .contact-section h2 { font-size: 1.4rem; margin-bottom: .5rem; }
+    .contact-section p { color: #555; font-size: .9rem; margin-bottom: .3rem; }
+    .footer { text-align: center; font-size: .8rem; color: #999; border-top: 1px solid #eaeaea; padding: 1rem; }
+  </style>
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function() {
+      emailjs.init('QYlRz8dURmihM96yW');
+    })();
+  </script>
+</head>
+<body>
+  <header>
+    <div class="logo">VitaminBoost ALR</div>
+    <nav>
+      <a href="#vacuum">Vacuum Blending</a>
+      <a href="#menu">Menu</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Fresh Vacuum Blended Smoothies</h1>
+    <p>Pick-ups Tuesdays &amp; Thursdays. Enjoy nutrient-rich 330 ml cups.</p>
+  </section>
+
+  <section id="vacuum" class="vacuum">
+    <h2>Why Vacuum Blending?</h2>
+    <p>Our vacuum process locks in flavor and nutrients by removing air before blending.</p>
+    <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/f80cf39136582f2e5f84bc751463529f9e6b61ba/Regular%20vs%20Vacuum%20Blended.png" alt="Regular vs Vacuum Blended Comparison">
+    <p class="sub">Vacuum blending reduces oxidation for a smoother, more vibrant smoothie.</p>
+  </section>
+
+  <section id="menu" class="menu">
+    <h2>Our Flavors</h2>
+    <div class="cards">
+      <!-- Red Smoothie -->
+      <div class="card">
+        <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/68ea8556f2fb45f70dc020bd02ac84f126a25306/Red%20Smoothie.png" alt="Red Smoothie">
+        <div class="card-content">
+          <h3>Red Smoothie</h3>
+          <p>Strawberry, Raspberry, Dates</p>
+          <p class="sub">330 ml · Vacuum Blended</p>
+          <div class="price">€3,50</div>
+          <button class="btn btn-add">Add to Cart</button>
+        </div>
+      </div>
+      <!-- Tropical Twist -->
+      <div class="card">
+        <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/68ea8556f2fb45f70dc020bd02ac84f126a25306/Yellow%20Smoothie.png" alt="Tropical Twist">
+        <div class="card-content">
+          <h3>Tropical Twist</h3>
+          <p>Orange, Mango, Pineapple</p>
+          <p class="sub">330 ml · Vacuum Blended</p>
+          <div class="price">€3,50</div>
+          <button class="btn btn-add">Add to Cart</button>
+        </div>
+      </div>
+      <!-- Berry Blast -->
+      <div class="card">
+        <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/68ea8556f2fb45f70dc020bd02ac84f126a25306/Purple%20Smoothie.png" alt="Berry Blast">
+        <div class="card-content">
+          <h3>Berry Blast</h3>
+          <p>Strawberry, Raspberry, Blueberry, Blackberry, Dates</p>
+          <p class="sub">330 ml · Vacuum Blended</p>
+          <div class="price">€3,50</div>
+          <button class="btn btn-add">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Panel -->
+  <div class="cart-panel">
+    <h2>Your Cart</h2>
+    <div id="cart-items" class="cart-items"></div>
+    <div id="cart-total" class="cart-total">Total: €0,00</div>
+    <button id="order-btn" class="btn">Order</button>
+  </div>
+
+  <!-- Details Modal -->
+  <div class="modal" id="details-modal">
+    <div class="modal-content">
+      <span class="close" id="close-details">×</span>
+      <h2>Your Details</h2>
+      <input type="text" id="fname" placeholder="First Name" required>
+      <input type="text" id="lname" placeholder="Surname" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <select id="role" required>
+        <option value="" disabled selected>Select role</option>
+        <option value="Student">Student</option>
+        <option value="Teacher">Teacher</option>
+        <option value="Other">Other</option>
+      </select>
+      <label for="pickup-date">Pickup Date (Tuesdays only):</label>
+      <input type="date" id="pickup-date" required>
+      <div class="cart-total">Total: <span id="details-total">€0,00</span></div>
+      <button id="to-payment" class="btn">Proceed to Payment</button>
+    </div>
+  </div>
+
+  <!-- QR Modal -->
+  <div class="modal" id="qr-modal">
+    <div class="modal-content">
+      <span class="close" id="close-qr">×</span>
+      <h2>Scan & Pay</h2>
+      <p>Please scan the Payconiq QR code below to complete your payment.</p>
+      <img id="qr-code" src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/f80cf39136582f2e5f84bc751463529f9e6b61ba/4TPCM%20Mini-Entreprise%20Payconiq.png" alt="Payconiq QR Code">       
+      <div style="display:flex; justify-content: space-between; margin-top:1rem;">
+        <button id="back-btn" class="btn btn-secondary">Back</button>
+        <button id="confirm-pay" class="btn">Confirm Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="contact" class="contact-section">
+    <h2>Contact Us</h2>
+    <p>Via Teams: Marc Muller | Lara Martins</p>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 VitaminBoost ALR. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Pickup date constraints
+    const pickupInput = document.getElementById('pickup-date');
+    if (pickupInput) {
+      const today = new Date();
+      const offset = (2 - today.getDay() + 7) % 7;
+      const nextTuesday = new Date(today);
+      nextTuesday.setDate(today.getDate() + offset);
+      const yyyy = nextTuesday.getFullYear();
+      const mm = String(nextTuesday.getMonth()+1).padStart(2,'0');
+      const dd = String(nextTuesday.getDate()).padStart(2,'0');
+      const minDate = `${yyyy}-${mm}-${dd}`;
+      pickupInput.min = minDate;
+      pickupInput.value = minDate;
+      pickupInput.step = 7;
+      pickupInput.addEventListener('input', () => {
+        const dt = new Date(pickupInput.value);
+        pickupInput.setCustomValidity(dt.getUTCDay() !== 2 ? 'Please select a Tuesday' : '');
+      });
+    }
+
+    // Cart logic
+    const cart = [];
+    document.querySelectorAll('.btn-add').forEach(btn => {
+      const card = btn.closest('.card');
+      const name = card.querySelector('h3').textContent;
+      const price = parseFloat(card.querySelector('.price').textContent.replace('€','').replace(',','.'));
+      btn.addEventListener('click', () => { cart.push({ name, price }); renderCart(); });
+    });
+
+    function renderCart() {
+      const container = document.getElementById('cart-items'); container.innerHTML = '';
+      const grouped = {};
+      cart.forEach(item => { grouped[item.name] = grouped[item.name] || { qty: 0, price: item.price }; grouped[item.name].qty++; });
+      let total = 0;
+      Object.entries(grouped).forEach(([name, info]) => {
+        const lineTotal = info.price * info.qty; total += lineTotal;
+        const div = document.createElement('div'); div.className = 'cart-item';
+        div.innerHTML = `<span>${info.qty}× ${name}</span><span>€${lineTotal.toFixed(2).replace('.',',')}</span>`;
+        container.appendChild(div);
+      });
+      document.getElementById('cart-total').textContent = `Total: €${total.toFixed(2).replace('.',',')}`;
+    }
+
+    // Order button
+    document.getElementById('order-btn').addEventListener('click', () => {
+      renderCart();
+      const totalText = document.getElementById('cart-total').textContent;
+      document.getElementById('details-total').textContent = totalText.split(' ')[1];
+      document.getElementById('details-modal').style.display = 'flex';
+    });
+    document.getElementById('close-details').addEventListener('click', () => { document.getElementById('details-modal').style.display = 'none'; });
+
+    // Proceed to Payment
+    document.getElementById('to-payment').addEventListener('click', () => {
+      const fn = document.getElementById('fname').value;
+      const ln = document.getElementById('lname').value;
+      const em = document.getElementById('email').value;
+      const rl = document.getElementById('role').value;
+      const pd = document.getElementById('pickup-date').value;
+      if (!fn || !ln || !em || !rl || !pd) return alert('Please fill all fields and select a pickup date');
+      if (new Date(pd).getUTCDay() !== 2) return alert('Pickup date must be a Tuesday');
+      document.getElementById('details-modal').style.display = 'none';
+      document.getElementById('qr-modal').style.display = 'flex';
+    });
+
+    // Close QR modal
+    document.getElementById('close-qr').addEventListener('click', () => { document.getElementById('qr-modal').style.display = 'none'; });
+    document.getElementById('back-btn').addEventListener('click', () => {
+      document.getElementById('qr-modal').style.display = 'none';
+      document.getElementById('details-modal').style.display = 'flex';
+    });
+
+    // Confirm Payment
+    document.getElementById('confirm-pay').addEventListener('click', () => {
+      // Combine first + last name
+      const fn = document.getElementById('fname').value;
+      const ln = document.getElementById('lname').value;
+      const customerName = `${fn} ${ln}`;
+      const customerRole = document.getElementById('role').value;
+      const pickupDate = document.getElementById('pickup-date').value;
+
+      // Gather order details
+      const grouped = {};
+      cart.forEach(item => { grouped[item.name] = grouped[item.name] || { qty: 0, price: item.price }; grouped[item.name].qty++; });
+      let orderDetails = '';
+      Object.entries(grouped).forEach(([name, info]) => {
+        orderDetails += `${info.qty}× ${name}: €${(info.price * info.qty).toFixed(2).replace('.',',')}
+`;
+      });
+
+      // Extract and format total amount
+      const rawTotal = document.getElementById('cart-total').textContent
+        .replace('Total: €','')
+        .replace(',','.');
+      const formattedTotal = `${rawTotal}€`;
+
+      // Send email to admin
+      emailjs.send('service_mivruy9', 'template_1728je9', {
+        Name: customerName,
+        email: document.getElementById('email').value,
+        order_details: orderDetails,
+        total_amount: formattedTotal,
+        pickup_date: pickupDate,
+        user_role: customerRole
+      })
+      .then(res => console.log('Admin email sent:', res.status, res.text))
+      .catch(err => console.error('Admin email error:', err));
+
+      // Send email to customer
+      emailjs.send('service_mivruy9', 'template_u8nwalz', {
+        Name: customerName,
+        email: document.getElementById('email').value,
+        order_details: orderDetails,
+        total_amount: formattedTotal,
+        pickup_date: pickupDate,
+        pickup_info: 'Tuesday 13:20–14:30 in the kitchen'
+      })
+      .then(res => console.log('Customer email sent:', res.status, res.text))
+      .catch(err => console.error('Customer email error:', err));
+
+      // Clear cart
+      cart.length = 0;
+      renderCart();
+
+      // Show confirmation
+      const modalContent = document.querySelector('#qr-modal .modal-content');
+      modalContent.innerHTML = `
+        <h2>Order Confirmed</h2>
+        <p>Thank you! Your order has been confirmed.</p>
+        <p>You can pick up your smoothies on Tuesday from 13:20 until 14:30 in the kitchen.</p>
+        <button id="close-confirm" class="btn">Close</button>
+      `;
+      document.getElementById('close-confirm').addEventListener('click', () => {
+        document.getElementById('qr-modal').style.display = 'none';
+      });
+    });
+     
+    
+    let orderDetails = '';
+      Object.entries(grouped).forEach(([name, info]) => {
+        orderDetails += `${info.qty}× ${name}: €${(info.price * info.qty).toFixed(2).replace('.',',')}\n`;
+      });
+      // Extract numeric total without currency symbol or comma
+      const totalText = document.getElementById('cart-total').textContent.replace('Total: €','').replace(',','.');
+      const total = totalText; // as string or parseFloat(totalText) if needed
+      const customerEmail = document.getElementById('email').value;
+      const customerName = document.getElementById('fname').value;
+      const customerRole = document.getElementById('role').value;
+      const pickupDate = document.getElementById('pickup-date').value;
+
+    // Dismiss modals on outside click
+    window.addEventListener('click', e => {
+      if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
