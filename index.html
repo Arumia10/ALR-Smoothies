@@ -136,6 +136,24 @@
   <script>emailjs.init('QYlRz8dURmihM96yW');</script>
 </head>
 <body>
+<!-- Loader -->
+  <div id="loader" style="
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    z-index: 9999;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.2rem;
+    color: #0071e3;
+  ">
+    Loading VitaminBoost...
+  </div>
+  
+<!-- All actual site content inside here -->
+ <div id="main-content" style="display:none;">    
   <header>
     <div class="logo">VitaminBoost ALR</div>
     <nav>
@@ -268,6 +286,17 @@
 <footer class="footer">
   <p>© 2025 VitaminBoost ALR. All rights reserved.</p>
 </footer>
+ 
+</div>
+  
+  <!-- Loader script -->
+  <script>
+    window.addEventListener('load', function () {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+    });
+  </script>
+</body>
 
   <script>
 // 1) Date-picker: only Tuesdays (2) & Wednesdays (3)
@@ -494,3 +523,5 @@ if (pickupInput) {
     }
   });
 </script>
+  
+<script src="your-script.js" defer></script>
