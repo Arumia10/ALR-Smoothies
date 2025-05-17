@@ -4,6 +4,13 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
+  
+  <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  
   <style>
     .hidden { display: none; }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -131,9 +138,11 @@
 }
 
   </style>
+ 
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>emailjs.init('QYlRz8dURmihM96yW');</script>
+ 
 </head>
 <body>
 <!-- Loader -->
@@ -239,8 +248,8 @@
       <option value="Other">Other</option>
     </select>
 
-    <label for="pickup-date">Pickup Date (Tuesdays &amp; Wednesdays)</label>
-    <input type="date" id="pickup-date" required>
+      <label for="pickup-date">Pickup Date (Tuesdays &amp; Wednesdays)</label>
+      <input type="text" id="pickup-date" placeholder="Select a pickup date" required>
 
     <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
       <p><strong>Tuesday Delivery:</strong> 14:00–14:20</p>
@@ -296,51 +305,8 @@
       document.getElementById('main-content').style.display = 'block';
     });
   </script>
-</body>
 
   <script>
-// 1) Date-picker: only Tuesdays (2) & Wednesdays (3)
-const pickupInput = document.getElementById('pickup-date');
-
-// Helper: hide both option panels
-function hideAllDayOptions() {
-  document.getElementById('tuesday-options').classList.add('hidden');
-  document.getElementById('wednesday-options').classList.add('hidden');
-}
-
-if (pickupInput) {
-  // compute next Tuesday for minimum
-  const today = new Date();
-  const offset = (2 - today.getDay() + 7) % 7;
-  const nextTue = new Date(today);
-  nextTue.setDate(today.getDate() + offset);
-  const yyyy = nextTue.getFullYear();
-  const mm = String(nextTue.getMonth() + 1).padStart(2, '0');
-  const dd = String(nextTue.getDate()).padStart(2, '0');
-  pickupInput.min = `${yyyy}-${mm}-${dd}`;
-  pickupInput.value = pickupInput.min;
-
-  // Listener: show only the correct panel
-  pickupInput.addEventListener('input', () => {
-    const wd = new Date(pickupInput.value).getUTCDay(); // 2=Tue, 3=Wed
-
-    // always hide both first
-    hideAllDayOptions();
-
-    if (wd === 2) {
-      document.getElementById('tuesday-options').classList.remove('hidden');
-      pickupInput.setCustomValidity('');
-    } else if (wd === 3) {
-      document.getElementById('wednesday-options').classList.remove('hidden');
-      pickupInput.setCustomValidity('');
-    } else {
-      pickupInput.setCustomValidity('Please choose a Tuesday or Wednesday');
-    }
-  });
-
-  // hide on initial load
-  hideAllDayOptions();
-}
 
   // 2) Wednesday radio logic: show delivery-location only if "delivery"
   document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
@@ -574,6 +540,33 @@ function renderCart() {
       e.target.style.display = 'none';
     }
   });
-</script>
+    
+  // Initialize Flatpickr with Tuesday/Wednesday restriction + cutoff logic
   
-<script src="your-script.js" defer></script>
+  window.addEventListener('DOMContentLoaded', function () {
+    flatpickr("#pickup-date", {
+      dateFormat: "Y-m-d",
+      disable: [
+        function (date) {
+          const now = new Date();
+
+          const cutoff = new Date(now);
+          const day = now.getDay();
+          const daysUntilMonday = (1 - day + 7) % 7;
+          cutoff.setDate(now.getDate() + daysUntilMonday);
+          cutoff.setHours(20, 0, 0, 0);
+
+          const isPastCutoff = now > cutoff;
+
+          const minAllowed = new Date(now);
+          if (isPastCutoff) minAllowed.setDate(minAllowed.getDate() + 7);
+
+          return !(date.getDay() === 2 || date.getDay() === 3) || date < minAllowed;
+        }
+      ],
+      minDate: "today"
+    });
+  });
+</script>
+</body>
+</html>
