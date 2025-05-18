@@ -292,11 +292,13 @@
   
   <!-- Loader script -->
   <script>
-    window.addEventListener('load', function () {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      window.scrollTo(0, 0); // Scroll to top on load
-    });
+      window.addEventListener('load', function () {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+
+        // Ensure scroll to top after rendering
+        setTimeout(() => window.scrollTo(0, 0), 10);
+      });
   </script>
 </body>
 
