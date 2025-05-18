@@ -57,14 +57,20 @@
     .cards { display:grid; grid-template-columns:repeat(2, 1fr); gap:1.5rem; }
     @media(min-width:992px){ .cards { grid-template-columns:repeat(3,1fr); } }
     .card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  overflow: hidden;
-  transition: transform 0.3s;
-}
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%; /* Ensure equal height for cards */
+    }
     .card img { width:100%; display:block; }
-    .card-content { padding:1rem; text-align:center; }
+    .card-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+  padding: 1rem;
+  text-align: center;
+}
     .card-content h3 { font-size:1.1rem; margin-bottom:.5rem; }
     .card-content p { color:#555; font-size:.9rem; margin-bottom:.3rem; }
     .card-content .sub { color:#777; font-size:.85rem; margin-bottom:.5rem; }
@@ -128,6 +134,31 @@
   padding: 1rem;
   margin-top: 3rem;
 }
+    
+    .home-gallery {
+  padding: 2rem 1rem;
+  background: #fefefe;
+}
+
+.home-gallery .gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.home-gallery .gallery img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  height: 140px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.3s;
+}
+
+.home-gallery .gallery img:hover {
+  transform: scale(1.03);
+}
 
   </style>
   <!-- EmailJS SDK -->
@@ -152,75 +183,102 @@
   </div>
   
 <!-- All actual site content inside here -->
- <div id="main-content" style="display:none;">    
-  <header>
-    <div class="logo">VitaminBoost ALR</div>
-    <nav>
-      <a href="#vacuum">Vacuum Blending</a>
-      <a href="#menu">Menu</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+ <div id="main-content" style="display: block;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 1rem;">
 
-  <section class="hero">
-    <h1>Fresh Vacuum Blended Smoothies</h1>
-  </section>
+      <header>
+        <div class="logo">VitaminBoost ALR</div>
+        <nav style="display: flex; gap: 2rem; justify-content: space-between; align-items: center;">
+          <a href="#home">Home</a>
+          <a href="#vacuum">Vacuum Blending</a>
+          <a href="#menu">Menu</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
 
-  <section id="vacuum" class="vacuum">
-    <h2>Our Vacuum Blending Process</h2>
-    <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Regular%20vs%20Vacuum%20Blended.png?raw=true" alt="Blender Comparison">
-    <p>At VitaminBoost ALR, we use a <strong> Vacuum Blender</strong> to remove air before blending. Benefits:</p>
-    <ul style="list-style:none; padding-left:0; text-align:left;">
-      <li>🍏 Reduces oxidation & browning</li>
-      <li>🌈 Preserves vibrant color & flavor</li>
-      <li>💪 Locks in vitamins & antioxidants</li>
-      <li>✨ Smoother, creamier texture</li>
-      <li>⏱️ Fresh up to 48 hours</li>
-    </ul>
-    <p class="sub">Experience next-level smoothie quality.</p>
-  </section>
+    <section class="hero" style="text-align: center; padding: 1.5rem 0; background: linear-gradient(135deg, #ffecd2, #fcb69f); border-radius: 12px; margin: 2rem 0;">
+      <h1 style="font-size: 2rem; font-weight: bold;">Experience the Smoothest<br>Smoothies Ever</h1>
+      <p style="color: #555; margin: 1rem 0;">Vacuum-blended. Vitamin-rich. Bursting with real fruit.</p>
 
-  <section id="menu" class="menu">
-    <h2>Our Flavors</h2>
-    <div class="cards">
-      <div class="card">
-        <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Red%20Smoothie.png?raw=true" alt="Red Smoothie">
-        <div class="card-content">
-          <h3>Red Smoothie</h3>
-          <p>Strawberry, Raspberry, Dates</p>
-          <p class="sub">330 ml · Vacuum Blended</p>
-          <div class="price">€3,50</div>
-          <button class="btn btn-add">Add to Cart</button>
+      <img src="https://images.pexels.com/photos/775031/pexels-photo-775031.jpeg" 
+           alt="Smoothie with fruits" 
+           style="max-width: 450px; margin: 0rem auto; display: block;">
+
+      <a href="#menu" class="btn" style="margin-top: 1.5rem; display: inline-block;">Order Now</a>
+    </section>
+
+      <section id="vacuum" class="vacuum" style="text-align: center ; padding: 3rem 0; border-radius: 12px; margin: 2rem 0;">
+        <h2>Our Vacuum Blending Process</h2>
+        <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Regular%20vs%20Vacuum%20Blended.png?raw=true" alt="Blender Comparison" style="width: 100%; max-width: 500px; border-radius: 12px;">
+        <p style="margin: 1rem auto; max-width: 500px;">At VitaminBoost ALR, we use a <strong> Vacuum Blender</strong> to remove air before blending. Benefits:</p>
+        <ul style="list-style:none; padding: 0; text-align: left; max-width: 500px; margin: 0 auto;">
+          <li>🍏 Reduces oxidation & browning</li>
+          <li>🌈 Preserves vibrant color & flavor</li>
+          <li>💪 Locks in vitamins & antioxidants</li>
+          <li>✨ Smoother, creamier texture</li>
+          <li>⏱️ Fresh for at least 48 hours</li>
+        </ul>
+      </section>
+
+      <section id="menu" class="menu">
+        <h2 style="text-align: center;">Our Flavors</h2>
+        <div class="cards">
+          <div class="card">
+            <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Red%20Smoothie.png?raw=true" alt="Red Smoothie">
+            <div class="card-content">
+              <h3>Red Smoothie</h3>
+              <p>Strawberry, Raspberry, Dates</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn">Add to Cart</button>
+            </div>
+          </div>
+          <div class="card">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/a4ee3e39d951cf2c7a49aa367623e87e9aff8b1f/Yellow%20Smoothie.jpg" alt="Tropical Twist">
+            <div class="card-content">
+              <h3>Tropical Twist</h3>
+              <p>Orange, Mango, Pineapple</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn">Add to Cart</button>
+            </div>
+          </div>
+          <div class="card">
+            <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Purple%20Smoothie.png?raw=true" alt="Berry Blast">
+            <div class="card-content">
+              <h3>Berry Blast</h3>
+              <p>Strawberry, Raspberry, Blueberry, Blackberry, Dates</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn">Add to Cart</button>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <div class="cart-panel">
+        <h2>Your Cart</h2>
+        <div id="cart-items"></div>
+        <div id="cart-total" class="cart-total">Total: €0,00</div>
+        <button id="order-btn" class="btn">Order</button>
       </div>
-      <div class="card">
-        <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/a4ee3e39d951cf2c7a49aa367623e87e9aff8b1f/Yellow%20Smoothie.jpg" alt="Tropical Twist">
-        <div class="card-content">
-          <h3>Tropical Twist</h3>
-          <p>Orange, Mango, Pineapple</p>
-          <p class="sub">330 ml · Vacuum Blended</p>
-          <div class="price">€3,50</div>
-          <button class="btn btn-add">Add to Cart</button>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Purple%20Smoothie.png?raw=true" alt="Berry Blast">
-        <div class="card-content">
-          <h3>Berry Blast</h3>
-          <p>Strawberry, Raspberry, Blueberry, Blackberry, Dates</p>
-          <p class="sub">330 ml · Vacuum Blended</p>
-          <div class="price">€3,50</div>
-          <button class="btn btn-add">Add to Cart</button>
-        </div>
-      </div>
+
+      <section id="promise" style="padding: 2rem 1rem; background-color: #f4f9ff; border-radius: 12px; margin: 2rem 0;">
+        <h2 style="text-align: center; font-size: 1.8rem; color: #0071e3; margin-bottom: 1.5rem;">What Makes Us Different</h2>
+        <ul style="list-style: none; padding: 0; color: #333; font-size: 1rem; max-width: 500px; margin: 0 auto;">
+          <li style="margin-bottom: 1rem;">🌿 100% real fruit — no added sugar, no juice.</li>
+          <li style="margin-bottom: 1rem;">🌀 Vacuum blending locks in nutrients and flavor.</li>
+          <li style="margin-bottom: 1rem;">♻️ Eco-friendly packaging, because we care.</li>
+          <li style="margin-bottom: 1rem;">📍 Convenient Pickup & Delivery</li>
+        </ul>
+      </section>
+
+      <section style="text-align: center; padding: 2rem 1rem; background: #fff0db; border-top: 2px solid #fcb69f; border-radius: 12px;">
+        <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #f25c05;">Make ALR Healthy Again</h2>
+        <img src="https://github.com/Arumia10/ALR-Smoothies/blob/b7da3543efde8955022f9b45b08f77569631dd16/ALR%20Smoothie.jpg?raw=true" alt="ALR Bird with Smoothie" style="max-width: 100%; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+      </section>
+
     </div>
-  </section>
-
-  <div class="cart-panel">
-    <h2>Your Cart</h2>
-    <div id="cart-items" class="cart-items"></div>
-    <div id="cart-total" class="cart-total">Total: €0,00</div>
-    <button id="order-btn" class="btn">Order</button>
   </div>
 
   <!-- Details Modal -->
@@ -275,6 +333,7 @@
       </div>
     </div>
   </div>
+   
 
 <!-- CONTACT SECTION -->
 <section id="contact" class="contact-section">
@@ -443,10 +502,11 @@ document.querySelectorAll('.btn-add').forEach(btn => {
 // 3.1) Cart Rendering   
 function renderCart() {
   const container = document.getElementById('cart-items');
+  const orderBtn = document.getElementById('order-btn');
   container.innerHTML = '';
 
   const grouped = {};
-  cart.forEach((item, index) => {
+  cart.forEach((item) => {
     if (!grouped[item.name]) {
       grouped[item.name] = { qty: 0, price: item.price };
     }
@@ -476,6 +536,9 @@ function renderCart() {
 
   document.getElementById('cart-total').textContent =
     `Total: €${total.toFixed(2).replace('.', ',')}`;
+
+  // Enable or disable the order button
+  orderBtn.disabled = cart.length === 0;
 
   attachCartHandlers();
 }
@@ -516,12 +579,26 @@ function renderCart() {
 }
 
   // 4) Order → Details
-  document.getElementById('order-btn').addEventListener('click', () => {
-    renderCart();
-    document.getElementById('details-total').textContent =
-      document.getElementById('cart-total').textContent.split(' ')[1];
-    document.getElementById('details-modal').style.display = 'flex';
-  });
+document.getElementById('order-btn').addEventListener('click', () => {
+  if (cart.length === 0) {
+    // Show feedback to user
+    const btn = document.getElementById('order-btn');
+    const originalText = btn.textContent;
+    btn.textContent = '🛒 Add a smoothie first!';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 2000);
+    return;
+  }
+
+  renderCart();
+  document.getElementById('details-total').textContent =
+    document.getElementById('cart-total').textContent.split(' ')[1];
+  document.getElementById('details-modal').style.display = 'flex';
+});
   document.getElementById('close-details').addEventListener('click', () => {
     document.getElementById('details-modal').style.display = 'none';
   });
