@@ -4,13 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
-  
-  <!-- Flatpickr CSS -->
-   <link rel="stylesheet" href="https://rawcdn.githack.com/Arumia10/ALR-Smoothies/main/flatpickr/flatpickr.min.css">
-
-  <!-- Flatpickr JS -->
-    <script src="https://rawcdn.githack.com/Arumia10/ALR-Smoothies/main/flatpickr/flatpickr.min.js"></script>
-  
   <style>
     .hidden { display: none; }
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -61,8 +54,7 @@
     .vacuum img { width:100%; max-width:500px; border-radius:8px; margin:0 auto 1rem; display:block; }
     .vacuum .sub { color:#555; font-size:.9rem; margin-bottom:1.5rem; }
     .menu h2 { text-align:center; font-size:1.5rem; margin-bottom:1.5rem; }
-    .cards { display:grid; grid-template-columns:1fr; gap:1.5rem; }
-    @media(min-width:768px){ .cards { grid-template-columns:repeat(2,1fr); } }
+    .cards { display:grid; grid-template-columns:repeat(2, 1fr); gap:1.5rem; }
     @media(min-width:992px){ .cards { grid-template-columns:repeat(3,1fr); } }
     .card {
   background: #fff;
@@ -138,11 +130,9 @@
 }
 
   </style>
- 
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>emailjs.init('QYlRz8dURmihM96yW');</script>
- 
 </head>
 <body>
 <!-- Loader -->
@@ -248,8 +238,10 @@
       <option value="Other">Other</option>
     </select>
 
-      <label for="pickup-date">Pickup Date (Tuesdays &amp; Wednesdays)</label>
-      <input type="text" id="pickup-date" placeholder="Select a pickup date" required>
+ <div id="pickup-date-wrapper" class="hidden">
+  <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
+  <input type="date" id="pickup-date" required>
+</div>
 
     <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
       <p><strong>Tuesday Delivery:</strong> 14:00–14:20</p>
@@ -258,8 +250,8 @@
 
     <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
       <p><strong>Wednesday:</strong></p>
-      <label><input type="radio" name="wed-option" value="pickup"> Pickup @ Proffen Konferenz (09:30–09:50)</label><br>
-      <label><input type="radio" name="wed-option" value="delivery"> Delivery (10:00–10:20)</label>
+      <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
+      <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (10:00–10:20)</label>
       <div id="location-wed" class="hidden" style="margin-top:.5rem;">
         <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)" required>
       </div>
@@ -303,36 +295,147 @@
     window.addEventListener('load', function () {
       document.getElementById('loader').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
+      window.scrollTo(0, 0); // Scroll to top on load
     });
   </script>
+</body>
 
   <script>
+const pickupInput = document.getElementById('pickup-date');
+const roleSelect = document.getElementById('role');
 
-  // 2) Wednesday radio logic: show delivery-location only if "delivery"
-  document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const locWed = document.getElementById('location-wed');
-      locWed.classList.toggle('hidden', radio.value !== 'delivery');
-    });
+function hideAllDayOptions() {
+  document.getElementById('tuesday-options').classList.add('hidden');
+  document.getElementById('wednesday-options').classList.add('hidden');
+}
+
+function isWednesday(dateStr) {
+  return new Date(dateStr).getUTCDay() === 3;
+}
+
+function isTuesday(dateStr) {
+  return new Date(dateStr).getUTCDay() === 2;
+}
+
+// Set minimum date to next Tuesday
+const today = new Date();
+const offset = (2 - today.getDay() + 7) % 7;
+const nextTue = new Date(today);
+nextTue.setDate(today.getDate() + offset);
+const yyyy = nextTue.getFullYear();
+const mm = String(nextTue.getMonth() + 1).padStart(2, '0');
+const dd = String(nextTue.getDate()).padStart(2, '0');
+pickupInput.min = `${yyyy}-${mm}-${dd}`;
+pickupInput.value = pickupInput.min;
+hideAllDayOptions();
+
+function updatePickupOptions() {
+  const role = roleSelect.value;
+  const label = document.getElementById('pickup-date-label');
+  const wrapper = document.getElementById('pickup-date-wrapper');
+  const day = new Date(pickupInput.value).getUTCDay(); // 2=Tue, 3=Wed
+
+  if (!role) {
+    wrapper.classList.add('hidden');
+    return;
+  } else {
+    wrapper.classList.remove('hidden');
+  }
+
+  // update label text
+  if (role === 'Student') {
+    label.textContent = 'Pickup Date (Wednesdays only)';
+  } else {
+    label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
+  }
+
+  hideAllDayOptions();
+
+if (role === "Student") {
+  // Update label
+  label.textContent = 'Pickup Date (Wednesdays only)';
+
+  // Hide delivery option
+  document.getElementById('radio-delivery').classList.add('hidden');
+
+  if (day !== 3) {
+    pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
+    pickupInput.reportValidity();
+  } else {
+    pickupInput.setCustomValidity('');
+    document.getElementById('wednesday-options').classList.remove('hidden');
+    
+    // Force student to pickup only
+    document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
+    document.getElementById('location-wed').classList.add('hidden');
+    document.getElementById('location-wed-input').value = 'Virum Festsall';
+    document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
+  }
+}
+  
+  else {
+  label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
+
+  // Show delivery option again
+  document.getElementById('radio-delivery').classList.remove('hidden');
+
+  // Always reset pickup label to default
+  document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
+
+  if (day === 2) {
+    document.getElementById('tuesday-options').classList.remove('hidden');
+    pickupInput.setCustomValidity('');
+  } else if (day === 3) {
+    document.getElementById('wednesday-options').classList.remove('hidden');
+    pickupInput.setCustomValidity('');
+
+    // Clear "Virum Festsall" from delivery field if left by student
+    const deliveryInput = document.getElementById('location-wed-input');
+    if (deliveryInput.value === 'Virum Festsall') {
+      deliveryInput.value = '';
+    }
+  } else {
+    pickupInput.setCustomValidity('Please choose a Tuesday or Wednesday');
+    pickupInput.reportValidity();
+  }
+}
+}
+// Listen to changes
+pickupInput.addEventListener('input', updatePickupOptions);
+roleSelect.addEventListener('change', updatePickupOptions);
+    
+    
+
+// ----------------------------
+// 2) Wednesday radio logic
+// ----------------------------
+document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const locWed = document.getElementById('location-wed');
+    locWed.classList.toggle('hidden', radio.value !== 'delivery');
   });
-
-  // 3) Cart logic
-  const cart = [];
-  document.querySelectorAll('.btn-add').forEach(btn => {
-    const card = btn.closest('.card');
-    const name = card.querySelector('h3').textContent;
-    const price = parseFloat(
-      card.querySelector('.price').textContent
-        .replace('€', '')
-        .replace(',', '.')
-    );
-    btn.addEventListener('click', () => {
-  cart.push({ name, price });
-  renderCart();
-  btn.textContent = "✓ Added";
-  setTimeout(() => btn.textContent = "Add to Cart", 1200);
 });
+
+// ----------------------------
+// 3) Cart logic
+// ----------------------------
+const cart = [];
+
+document.querySelectorAll('.btn-add').forEach(btn => {
+  const card = btn.closest('.card');
+  const name = card.querySelector('h3').textContent;
+  const price = parseFloat(
+    card.querySelector('.price').textContent
+      .replace('€', '')
+      .replace(',', '.')
+  );
+  btn.addEventListener('click', () => {
+    cart.push({ name, price });
+    renderCart();
+    btn.textContent = "✓ Added";
+    setTimeout(() => btn.textContent = "Add to Cart", 1200);
   });
+});
 
     
 // 3.1) Cart Rendering   
@@ -482,15 +585,20 @@ function renderCart() {
       const loc = document.getElementById('location-tue').value.trim();
       deliveryLocation = `14:00–14:20 @ ${loc}`;
     } else if (wd === 3) {
-      // Wednesday pickup or delivery
-      const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
-      if (choice === 'delivery') {
-        const loc = document.getElementById('location-wed-input').value.trim();
-        deliveryLocation = `10:00–10:20 @ ${loc}`;
-      } else {
-        deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
-      }
+  const role = document.getElementById('role').value;
+
+  if (role === 'Student') {
+    deliveryLocation = `09:30–09:50 @ Virum Festsall`;
+  } else {
+    const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
+    if (choice === 'delivery') {
+      const loc = document.getElementById('location-wed-input').value.trim();
+      deliveryLocation = `10:00–10:20 @ ${loc}`;
+    } else {
+      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
     }
+  }
+}
     // 6a) Send admin email
     emailjs.send('service_mivruy9', 'template_1728je9', {
       Name: customerName,
@@ -540,33 +648,6 @@ function renderCart() {
       e.target.style.display = 'none';
     }
   });
-    
-  // Initialize Flatpickr with Tuesday/Wednesday restriction + cutoff logic
-  
-  window.addEventListener('DOMContentLoaded', function () {
-    flatpickr("#pickup-date", {
-      dateFormat: "Y-m-d",
-      disable: [
-        function (date) {
-          const now = new Date();
-
-          const cutoff = new Date(now);
-          const day = now.getDay();
-          const daysUntilMonday = (1 - day + 7) % 7;
-          cutoff.setDate(now.getDate() + daysUntilMonday);
-          cutoff.setHours(20, 0, 0, 0);
-
-          const isPastCutoff = now > cutoff;
-
-          const minAllowed = new Date(now);
-          if (isPastCutoff) minAllowed.setDate(minAllowed.getDate() + 7);
-
-          return !(date.getDay() === 2 || date.getDay() === 3) || date < minAllowed;
-        }
-      ],
-      minDate: "today"
-    });
-  });
 </script>
-</body>
-</html>
+  
+<script src="your-script.js" defer></script>
