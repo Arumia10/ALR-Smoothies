@@ -735,21 +735,50 @@ document.getElementById('order-btn').addEventListener('click', () => {
     .then(r => console.log('Customer email sent', r.status, r.text))
     .catch(e => console.error('Customer email error', e));
 
-    // 7) Clear cart & show final confirmation
-    cart.length = 0;
-    renderCart();
-    const mc = document.querySelector('#qr-modal .modal-content');
-    mc.innerHTML = `
-      <h2>Order Confirmed</h2>
-      <p>Thank you! Your order has been confirmed.</p>
-      <p><strong>Pickup Date:</strong> ${pickupDate}</p>
-      <p>You can pick up or receive your smoothies as booked.</p>
-      <button id="close-confirm" class="btn">Close</button>`;
-    document.getElementById('close-confirm').addEventListener('click', () => {
-      document.getElementById('qr-modal').style.display = 'none';
-      // reload the page to clear cart and reset everything
-      location.reload();
-    });
+// 7) Save order to Cloudflare Worker before clearing cart
+fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: customerName,
+    email: customerEmail,
+    role: customerRole,
+    pickup_date: pickupDate,
+    delivery_location: deliveryLocation,
+    order_details: orderDetails,
+    total_amount: formattedTotal
+  })
+})
+.then(res => res.json())
+.then(data => {
+  if (data.success) {
+    console.log("✅ Order saved with ID:", data.order_id);
+  } else {
+    console.warn("⚠️ Failed to save order.");
+  }
+
+  // Proceed regardless of success for now
+  cart.length = 0;
+  renderCart();
+
+  const mc = document.querySelector('#qr-modal .modal-content');
+  mc.innerHTML = `
+    <h2>Order Confirmed</h2>
+    <p>Thank you! Your order has been confirmed.</p>
+    <p><strong>Pickup Date:</strong> ${pickupDate}</p>
+    <p>You can pick up or receive your smoothies as booked.</p>
+    <button id="close-confirm" class="btn">Close</button>
+  `;
+
+  document.getElementById('close-confirm').addEventListener('click', () => {
+    document.getElementById('qr-modal').style.display = 'none';
+    location.reload();
+  });
+})
+.catch(error => {
+  console.error("❌ Error sending order to server:", error);
+  alert("There was an error saving your order. Please try again.");
+});
   });
 
   // 8) Dismiss modals on outside click
@@ -758,6 +787,7 @@ document.getElementById('order-btn').addEventListener('click', () => {
       e.target.style.display = 'none';
     }
   });
+    
 </script>
   
 <script src="your-script.js" defer></script>
