@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://cdn.jsdelivr.net; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://raw.githubusercontent.com data:;">
   <!-- Add this script once in your <head> -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
@@ -359,7 +361,6 @@
 </div>
 
   <!-- QR Modal -->
-  <!-- QR Modal -->
 <div class="modal" id="qr-modal">
   <div class="modal-content">
     <span class="close" id="close-qr">×</span>
@@ -369,7 +370,11 @@
     <img id="qr-code" src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Pictures/4TPCM%20Mini-Entreprise%20Payconiq.png?raw=true" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
 
     <!-- ✅ Turnstile goes here inside modal content -->
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAABd3MtYix_xppNef" data-theme="light" style="margin: 1rem auto;"></div>
+   <div class="cf-turnstile"
+     data-sitekey="0x4AAAAAABd3MtYix_xppNef"
+     data-theme="light"
+     data-callback="onTurnstileSuccess">
+  </div>
 
     <div style="display:flex; justify-content:space-between; margin-top:1rem;">
       <button id="back-btn" class="btn btn-secondary">Back</button>
@@ -402,6 +407,13 @@
         // Ensure scroll to top after rendering
         setTimeout(() => window.scrollTo(0, 0), 10);
       });
+  </script>
+
+  <script>
+  let turnstileToken = "";
+  function onTurnstileSuccess(token) {
+    turnstileToken = token;
+  }
   </script>
 </body>
 
@@ -680,7 +692,7 @@ document.getElementById('order-btn').addEventListener('click', () => {
     // Reformat pickup date
     const [Y, M, D] = document.getElementById('pickup-date').value.split('-');
     const pickupDate = `${D}/${M}/${Y}`;
-    const token = turnstile.getResponse();
+    const token = turnstileToken;
 
     if (!token) {
       alert("Please complete the human check (Turnstile).");
@@ -767,7 +779,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
     delivery_location: deliveryLocation,
     order_details: orderDetails,
     total_amount: formattedTotal,
-    cf_token: token
+    cf_token: turnstileToken
   })
 })
 .then(res => res.json())
