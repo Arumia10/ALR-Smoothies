@@ -408,8 +408,6 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   });
     
 </script>
-  
-<script src="your-script.js" defer></script>
 
 
 Moved inline JS to public/script.js
