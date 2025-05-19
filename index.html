@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline';">
+   <!-- ✅ CSP meta tag goes here, before other scripts -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline';">
   <!-- Add this script once in your <head> -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
