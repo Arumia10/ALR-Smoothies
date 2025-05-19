@@ -729,10 +729,6 @@ const rawTotal = document.getElementById('cart-total').textContent
   .replace(',', '.');
 const formattedTotal = `${rawTotal}€`;
 
-// Insert message into the modal
-document.getElementById('payment-instructions').innerHTML =
-  `Please scan the Payconiq QR code below and transfer <strong>${formattedTotal}</strong> to complete your payment.`;
-
     // determine which location to include
     let deliveryLocation = '';
     const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
