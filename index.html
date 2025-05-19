@@ -371,7 +371,8 @@
   <div class="modal-content">
     <span class="close" id="close-qr">×</span>
     <h2>Scan &amp; Pay</h2>
-    <p>Please scan the Payconiq QR code below to complete your payment.</p>
+    document.querySelector('#qr-modal .modal-content p').innerHTML =
+  `Please scan the Payconiq QR code below and transfer <strong>${formattedTotal}</strong> to complete your payment.`;
 
     <img id="qr-code" src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/4TPCM%20Mini-Entreprise%20Payconiq.png" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
 
