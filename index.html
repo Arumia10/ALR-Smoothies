@@ -752,41 +752,9 @@ const formattedTotal = `${rawTotal}€`;
     }
   }
 }
-    .then(data => {
-  if (data.success) {
-    console.log("✅ Order saved with ID:", data.order_id);
-  } else {
-    console.warn("⚠️ Failed to save order.");
-  }
-    // 6a) Send admin email
-    emailjs.send('service_mivruy9', 'template_1728je9', {
-      Name: customerName,
-      email: customerEmail,
-      order_details: orderDetails,
-      total_amount: formattedTotal,
-      pickup_date: pickupDate,
-      user_role: customerRole,
-      delivery_location: deliveryLocation,
-      order_id: data.order_id
-    })
-    .then(r => console.log('Admin email sent', r.status, r.text))
-    .catch(e => console.error('Admin email error', e));
 
-    // 6b) Send customer email
-    emailjs.send('service_mivruy9', 'template_u8nwalz', {
-      Name: customerName,
-      email: customerEmail,
-      order_details: orderDetails,
-      total_amount: formattedTotal,
-      pickup_date: pickupDate,
-      pickup_info: `Delivery window chosen`,
-      delivery_location: deliveryLocation,
-      order_id: data.order_id
-    })
-    .then(r => console.log('Customer email sent', r.status, r.text))
-    .catch(e => console.error('Customer email error', e));
 
-// 7) Save order to Cloudflare Worker before clearing cart
+// 6) Save order to Cloudflare Worker before clearing cart
 fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -802,6 +770,40 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   })
 })
 .then(res => res.json())
+  .then(data => {
+  if (data.success) {
+    console.log("✅ Order saved with ID:", data.order_id);
+  } else {
+    console.warn("⚠️ Failed to save order.");
+  }
+
+     // 7a) Send admin email
+    emailjs.send('service_mivruy9', 'template_1728je9', {
+      Name: customerName,
+      email: customerEmail,
+      order_details: orderDetails,
+      total_amount: formattedTotal,
+      pickup_date: pickupDate,
+      user_role: customerRole,
+      delivery_location: deliveryLocation,
+      order_id: data.order_id
+    })
+    .then(r => console.log('Admin email sent', r.status, r.text))
+    .catch(e => console.error('Admin email error', e));
+
+    // 7b) Send customer email
+    emailjs.send('service_mivruy9', 'template_u8nwalz', {
+      Name: customerName,
+      email: customerEmail,
+      order_details: orderDetails,
+      total_amount: formattedTotal,
+      pickup_date: pickupDate,
+      pickup_info: `Delivery window chosen`,
+      delivery_location: deliveryLocation,
+      order_id: data.order_id
+    })
+    .then(r => console.log('Customer email sent', r.status, r.text))
+    .catch(e => console.error('Customer email error', e));
 
   // Proceed regardless of success for now
   cart.length = 0;
