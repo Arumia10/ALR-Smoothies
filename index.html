@@ -801,11 +801,19 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   renderCart();
 
   const mc = document.querySelector('#qr-modal .modal-content');
+  
+  const returnInstructions = customerRole === "Student"
+    ? "🔁 Students: Return smoothie glasses every Wednesday in Virum Festsall between 09:30–09:50."
+    : "🔁 Others: Return glasses anytime in the return box next to the fridge (outside Proffen Konferenz).";
+  
   mc.innerHTML = `
     <h2>Order Confirmed</h2>
     <p>Thank you! Your order has been confirmed.</p>
     <p><strong>Pickup Date:</strong> ${pickupDate}</p>
+    <p><strong>Delivery Location:</strong> ${deliveryLocation}</p>
     <p>You can pick up or receive your smoothies as booked.</p>
+    <p style="margin-top: 1rem;"><strong>♻️ Please rinse your smoothie glasses before returning them.</strong></p>
+    <p>${returnInstructions}</p>
     <button id="close-confirm" class="btn">Close</button>
   `;
 
