@@ -359,19 +359,24 @@
 </div>
 
   <!-- QR Modal -->
-  <div class="modal" id="qr-modal">
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAABd3MtYix_xppNef" data-theme="light"></div>
-    <div class="modal-content">
-      <span class="close" id="close-qr">×</span>
-      <h2>Scan &amp; Pay</h2>
-      <p>Please scan the Payconiq QR code below to complete your payment.</p>
-      <img id="qr-code" src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Pictures/4TPCM%20Mini-Entreprise%20Payconiq.png?raw=true" alt="QR Code">
-      <div style="display:flex; justify-content:space-between; margin-top:1rem;">
-        <button id="back-btn" class="btn btn-secondary">Back</button>
-        <button id="confirm-pay" class="btn">Confirm Payment</button>
-      </div>
+  <!-- QR Modal -->
+<div class="modal" id="qr-modal">
+  <div class="modal-content">
+    <span class="close" id="close-qr">×</span>
+    <h2>Scan &amp; Pay</h2>
+    <p>Please scan the Payconiq QR code below to complete your payment.</p>
+
+    <img id="qr-code" src="https://github.com/Arumia10/ALR-Smoothies/blob/main/Pictures/4TPCM%20Mini-Entreprise%20Payconiq.png?raw=true" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
+
+    <!-- ✅ Turnstile goes here inside modal content -->
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAABd3MtYix_xppNef" data-theme="light" style="margin: 1rem auto;"></div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+      <button id="back-btn" class="btn btn-secondary">Back</button>
+      <button id="confirm-pay" class="btn">Confirm Payment</button>
     </div>
   </div>
+</div>
    
 
 <!-- CONTACT SECTION -->
