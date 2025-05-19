@@ -366,22 +366,23 @@
   </div>
 </div>
 
-  <!-- QR Modal -->
+<!-- QR Modal -->
 <div class="modal" id="qr-modal">
   <div class="modal-content">
     <span class="close" id="close-qr">×</span>
     <h2>Scan &amp; Pay</h2>
-    document.querySelector('#qr-modal .modal-content p').innerHTML =
-  `Please scan the Payconiq QR code below and transfer <strong>${formattedTotal}</strong> to complete your payment.`;
+
+    <!-- PLACEHOLDER for dynamic payment message -->
+    <p id="payment-instructions"></p>
 
     <img id="qr-code" src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/4TPCM%20Mini-Entreprise%20Payconiq.png" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
 
     <!-- ✅ Turnstile goes here inside modal content -->
-   <div class="cf-turnstile"
-     data-sitekey="0x4AAAAAABd3MtYix_xppNef"
-     data-theme="light"
-     data-callback="onTurnstileSuccess">
-  </div>
+    <div class="cf-turnstile"
+         data-sitekey="0x4AAAAAABd3MtYix_xppNef"
+         data-theme="light"
+         data-callback="onTurnstileSuccess">
+    </div>
 
     <div style="display:flex; justify-content:space-between; margin-top:1rem;">
       <button id="back-btn" class="btn btn-secondary">Back</button>
