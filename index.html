@@ -760,7 +760,8 @@ const formattedTotal = `${rawTotal}€`;
       total_amount: formattedTotal,
       pickup_date: pickupDate,
       user_role: customerRole,
-      delivery_location: deliveryLocation
+      delivery_location: deliveryLocation,
+      order_id: data.order_id
     })
     .then(r => console.log('Admin email sent', r.status, r.text))
     .catch(e => console.error('Admin email error', e));
@@ -773,7 +774,8 @@ const formattedTotal = `${rawTotal}€`;
       total_amount: formattedTotal,
       pickup_date: pickupDate,
       pickup_info: `Delivery window chosen`,
-      delivery_location: deliveryLocation
+      delivery_location: deliveryLocation,
+      order_id: data.order_id
     })
     .then(r => console.log('Customer email sent', r.status, r.text))
     .catch(e => console.error('Customer email error', e));
