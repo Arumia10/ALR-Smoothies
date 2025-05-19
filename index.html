@@ -752,6 +752,12 @@ const formattedTotal = `${rawTotal}€`;
     }
   }
 }
+    .then(data => {
+  if (data.success) {
+    console.log("✅ Order saved with ID:", data.order_id);
+  } else {
+    console.warn("⚠️ Failed to save order.");
+  }
     // 6a) Send admin email
     emailjs.send('service_mivruy9', 'template_1728je9', {
       Name: customerName,
@@ -796,12 +802,6 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   })
 })
 .then(res => res.json())
-.then(data => {
-  if (data.success) {
-    console.log("✅ Order saved with ID:", data.order_id);
-  } else {
-    console.warn("⚠️ Failed to save order.");
-  }
 
   // Proceed regardless of success for now
   cart.length = 0;
