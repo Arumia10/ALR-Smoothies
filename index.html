@@ -720,12 +720,13 @@ document.getElementById('order-btn').addEventListener('click', () => {
         .replace('.', ',')}\n`;
     });
 
-    // Total formatting
-    const rawTotal = document.getElementById('cart-total').textContent
-      .replace('Total: €', '')
-      .replace(',', '.');
-    const formattedTotal = `${rawTotal}€`;
+// Format the total
+const rawTotal = document.getElementById('cart-total').textContent
+  .replace('Total: €', '')
+  .replace(',', '.');
+const formattedTotal = `${rawTotal}€`;
 
+// Insert message into the modal
 document.getElementById('payment-instructions').innerHTML =
   `Please scan the Payconiq QR code below and transfer <strong>${formattedTotal}</strong> to complete your payment.`;
 
