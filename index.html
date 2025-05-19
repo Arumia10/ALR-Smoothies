@@ -7,7 +7,8 @@
       content="
         default-src 'self';
         img-src 'self' https://raw.githubusercontent.com;
-        script-src 'self' https://challenges.cloudflare.com https://cdn.jsdelivr.net;
+        script-src 'self' https://challenges.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval' blob:;
+        connect-src 'self' https://challenges.cloudflare.com https://api.emailjs.com;
         frame-src https://challenges.cloudflare.com;
         style-src 'self' 'unsafe-inline';
       ">
