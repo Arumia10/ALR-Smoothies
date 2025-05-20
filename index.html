@@ -483,7 +483,34 @@ function updatePickupOptions() {
   const role = roleSelect.value;
   const label = document.getElementById('pickup-date-label');
   const wrapper = document.getElementById('pickup-date-wrapper');
-  const day = new Date(pickupInput.value).getUTCDay(); // 2=Tue, 3=Wed
+
+  // Enforce minDate dynamically
+  const now = new Date();
+  const currentDay = now.getDay(); // 0=Sun, 1=Mon, ..., 2=Tue
+  const currentHour = now.getHours();
+  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+  let minDate = new Date(now);
+
+  if (afterDeadline) {
+    const daysUntilNextTuesday = (9 - currentDay) % 7;
+    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+  } else {
+    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+  }
+
+  const yyyy = minDate.getFullYear();
+  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(minDate.getDate()).padStart(2, '0');
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+  pickupInput.min = formattedMinDate;
+
+  // Prevent selecting invalid date
+  if (pickupInput.value < formattedMinDate) {
+    pickupInput.value = formattedMinDate;
+  }
+
+  const day = new Date(pickupInput.value).getUTCDay(); // 2 = Tue, 3 = Wed
 
   if (!role) {
     wrapper.classList.add('hidden');
@@ -492,63 +519,45 @@ function updatePickupOptions() {
     wrapper.classList.remove('hidden');
   }
 
-  // update label text
-  if (role === 'Student') {
-    label.textContent = 'Pickup Date (Wednesdays only)';
-  } else {
-    label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
-  }
-
   hideAllDayOptions();
 
-if (role === "Student") {
-  // Update label
-  label.textContent = 'Pickup Date (Wednesdays only)';
+  if (role === "Student") {
+    label.textContent = 'Pickup Date (Wednesdays only)';
+    document.getElementById('radio-delivery').classList.add('hidden');
 
-  // Hide delivery option
-  document.getElementById('radio-delivery').classList.add('hidden');
-
-  if (day !== 3) {
-    pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
-    pickupInput.reportValidity();
-  } else {
-    pickupInput.setCustomValidity('');
-    document.getElementById('wednesday-options').classList.remove('hidden');
-    
-    // Force student to pickup only
-    document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
-    document.getElementById('location-wed').classList.add('hidden');
-    document.getElementById('location-wed-input').value = 'Virum Festsall';
-    document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
-  }
-}
-  
-  else {
-  label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
-
-  // Show delivery option again
-  document.getElementById('radio-delivery').classList.remove('hidden');
-
-  // Always reset pickup label to default
-  document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
-
-  if (day === 2) {
-    document.getElementById('tuesday-options').classList.remove('hidden');
-    pickupInput.setCustomValidity('');
-  } else if (day === 3) {
-    document.getElementById('wednesday-options').classList.remove('hidden');
-    pickupInput.setCustomValidity('');
-
-    // Clear "Virum Festsall" from delivery field if left by student
-    const deliveryInput = document.getElementById('location-wed-input');
-    if (deliveryInput.value === 'Virum Festsall') {
-      deliveryInput.value = '';
+    if (day !== 3) {
+      pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
+      pickupInput.reportValidity();
+    } else {
+      pickupInput.setCustomValidity('');
+      document.getElementById('wednesday-options').classList.remove('hidden');
+      document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
+      document.getElementById('location-wed').classList.add('hidden');
+      document.getElementById('location-wed-input').value = 'Virum Festsall';
+      document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
     }
   } else {
-    pickupInput.setCustomValidity('Please choose a Tuesday or Wednesday');
-    pickupInput.reportValidity();
+    label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
+    document.getElementById('radio-delivery').classList.remove('hidden');
+    document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
+
+    if (day === 2) {
+      document.getElementById('tuesday-options').classList.remove('hidden');
+      pickupInput.setCustomValidity('');
+    } else if (day === 3) {
+      document.getElementById('wednesday-options').classList.remove('hidden');
+      pickupInput.setCustomValidity('');
+
+      // Clear "Virum Festsall" from teachers if left by student
+      const deliveryInput = document.getElementById('location-wed-input');
+      if (deliveryInput.value === 'Virum Festsall') {
+        deliveryInput.value = '';
+      }
+    } else {
+      pickupInput.setCustomValidity('Please choose a Tuesday or Wednesday');
+      pickupInput.reportValidity();
+    }
   }
-}
 }
 // Listen to changes
 pickupInput.addEventListener('input', updatePickupOptions);
