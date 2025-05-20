@@ -671,12 +671,10 @@ function renderCart() {
   // 4) Order → Details
 document.getElementById('order-btn').addEventListener('click', () => {
   if (cart.length === 0) {
-    // Show feedback to user
     const btn = document.getElementById('order-btn');
     const originalText = btn.textContent;
     btn.textContent = '🛒 Add a smoothie first!';
     btn.disabled = true;
-
     setTimeout(() => {
       btn.textContent = originalText;
       btn.disabled = false;
@@ -684,11 +682,36 @@ document.getElementById('order-btn').addEventListener('click', () => {
     return;
   }
 
+  // Recalculate minDate dynamically
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+  let minDate = new Date(now);
+
+  if (afterDeadline) {
+    const daysUntilNextTuesday = (9 - currentDay) % 7;
+    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+  } else {
+    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+  }
+
+  const yyyy = minDate.getFullYear();
+  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(minDate.getDate()).padStart(2, '0');
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+  pickupInput.min = formattedMinDate;
+  pickupInput.value = formattedMinDate;
+
+  // Show modal
   renderCart();
   document.getElementById('details-total').textContent =
     document.getElementById('cart-total').textContent.split(' ')[1];
   document.getElementById('details-modal').style.display = 'flex';
 });
+
+    
   document.getElementById('close-details').addEventListener('click', () => {
     document.getElementById('details-modal').style.display = 'none';
   });
