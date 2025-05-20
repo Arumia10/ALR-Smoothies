@@ -442,16 +442,37 @@ function isTuesday(dateStr) {
   return new Date(dateStr).getUTCDay() === 2;
 }
 
-// Set minimum date to next Tuesday
-const today = new Date();
-const offset = (2 - today.getDay() + 7) % 7;
-const nextTue = new Date(today);
-nextTue.setDate(today.getDate() + offset);
-const yyyy = nextTue.getFullYear();
-const mm = String(nextTue.getMonth() + 1).padStart(2, '0');
-const dd = String(nextTue.getDate()).padStart(2, '0');
-pickupInput.min = `${yyyy}-${mm}-${dd}`;
-pickupInput.value = pickupInput.min;
+
+    // Limit order time
+const now = new Date();
+const currentDay = now.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+const currentHour = now.getHours();
+
+// Determine if we’re past Tuesday 13:00
+const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+
+// Start from today
+let minDate = new Date(now);
+
+// If we're after the Tuesday 14:00 deadline → jump to next week's Tuesday
+if (afterDeadline) {
+  const daysUntilNextTuesday = (9 - currentDay) % 7;
+  minDate.setDate(now.getDate() + daysUntilNextTuesday);
+} else {
+  // Else, set to upcoming Tuesday (can be today)
+  const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
+  minDate.setDate(now.getDate() + daysUntilThisTuesday);
+}
+
+// Format as YYYY-MM-DD
+const yyyy = minDate.getFullYear();
+const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+const dd = String(minDate.getDate()).padStart(2, '0');
+const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+
+// Apply it to the input
+pickupInput.min = formattedMinDate;
+pickupInput.value = formattedMinDate;
 hideAllDayOptions();
 
 function updatePickupOptions() {
