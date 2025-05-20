@@ -430,7 +430,35 @@
 </body>
 
   <script>
+function enforceMinPickupDate() {
+  const now = new Date();
+  const currentDay = now.getDay(); // 0 = Sunday, ..., 2 = Tuesday
+  const currentHour = now.getHours();
+  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+
+  let minDate = new Date(now);
+  if (afterDeadline) {
+    const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
+    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+  } else {
+    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+  }
+
+  const yyyy = minDate.getFullYear();
+  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(minDate.getDate()).padStart(2, '0');
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+
+  pickupInput.min = formattedMinDate;
+
+  if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
+    pickupInput.value = pickupInput.min;
+  }
+}
+
 const pickupInput = document.getElementById('pickup-date');
+    enforceMinPickupDate();
 const roleSelect = document.getElementById('role');
 
 function hideAllDayOptions() {
@@ -448,69 +476,16 @@ function isTuesday(dateStr) {
 
 
     // Limit order time
-const now = new Date();
-const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 2 = Tuesday
-const currentHour = now.getHours();
-
-// Check if we're past Tuesday 14:00
-const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
-
-// Start from today
-let minDate = new Date(now);
-
-// Adjust minDate to next valid Tuesday (after deadline) or today/this week if before
-if (afterDeadline) {
-  // Skip to next week's Tuesday
-  const daysUntilNextTuesday = (9 - currentDay) % 7;
-  minDate.setDate(now.getDate() + daysUntilNextTuesday);
-} else {
-  // This week's Tuesday
-  const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-  minDate.setDate(now.getDate() + daysUntilThisTuesday);
-}
-
-// Format minDate
-const yyyy = minDate.getFullYear();
-const mm = String(minDate.getMonth() + 1).padStart(2, '0');
-const dd = String(minDate.getDate()).padStart(2, '0');
-const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-pickupInput.min = formattedMinDate;
-if (pickupInput.value < formattedMinDate) {
-  pickupInput.value = formattedMinDate;
-}
+  enforceMinPickupDate(); // ← ensures proper date
     
 hideAllDayOptions();
+     enforceMinPickupDate();
 
 function updatePickupOptions() {
+  enforceMinPickupDate();
   const role = roleSelect.value;
   const label = document.getElementById('pickup-date-label');
   const wrapper = document.getElementById('pickup-date-wrapper');
-
-  // Enforce minDate dynamically
-  const now = new Date();
-  const currentDay = now.getDay(); // 0=Sun, 1=Mon, ..., 2=Tue
-  const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
-  let minDate = new Date(now);
-
-  if (afterDeadline) {
-    const daysUntilNextTuesday = (9 - currentDay) % 7;
-    minDate.setDate(now.getDate() + daysUntilNextTuesday);
-  } else {
-    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisTuesday);
-  }
-
-  const yyyy = minDate.getFullYear();
-  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(minDate.getDate()).padStart(2, '0');
-  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-  pickupInput.min = formattedMinDate;
-
-  // Prevent selecting invalid date
-  if (pickupInput.value < formattedMinDate) {
-    pickupInput.value = formattedMinDate;
-  }
 
   const day = new Date(pickupInput.value).getUTCDay(); // 2 = Tue, 3 = Wed
 
@@ -693,11 +668,12 @@ document.getElementById('order-btn').addEventListener('click', () => {
     return;
   }
 
-  // Recalculate minDate dynamically
+  // Recalculate minDate dynamically at the time the modal is opened
   const now = new Date();
-  const currentDay = now.getDay();
+  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   const currentHour = now.getHours();
   const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+
   let minDate = new Date(now);
 
   if (afterDeadline) {
@@ -712,17 +688,21 @@ document.getElementById('order-btn').addEventListener('click', () => {
   const mm = String(minDate.getMonth() + 1).padStart(2, '0');
   const dd = String(minDate.getDate()).padStart(2, '0');
   const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+
+  // Set date limits
   pickupInput.min = formattedMinDate;
   pickupInput.value = formattedMinDate;
+
+  // Re-evaluate role + pickup day logic
+  enforceMinPickupDate();
+  updatePickupOptions();
 
   // Show modal
   renderCart();
   document.getElementById('details-total').textContent =
     document.getElementById('cart-total').textContent.split(' ')[1];
-  updatePickupOptions();
   document.getElementById('details-modal').style.display = 'flex';
 });
-
     
   document.getElementById('close-details').addEventListener('click', () => {
     document.getElementById('details-modal').style.display = 'none';
@@ -735,6 +715,9 @@ document.getElementById('order-btn').addEventListener('click', () => {
     const em = document.getElementById('email').value.trim();
     const rl = document.getElementById('role').value;
     const pd = document.getElementById('pickup-date').value;
+    if (new Date(pd) < new Date(pickupInput.min)) {
+  return alert("⚠️ That date is no longer available. Please choose a valid pickup day.");
+}
     if (!fn || !ln || !em || !rl || !pd) {
       return alert('Please fill all fields and select a pickup date');
     }
