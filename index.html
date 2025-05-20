@@ -700,8 +700,15 @@ document.getElementById('order-btn').addEventListener('click', () => {
       return alert('Please fill all fields and select a pickup date');
     }
     document.getElementById('details-modal').style.display = 'none';
-    document.getElementById('payment-instructions').innerHTML =
-  `Please scan the Payconiq QR code below and transfer <strong>${document.getElementById('cart-total').textContent.replace('Total: ', '')}</strong> to complete your payment.`;
+    document.getElementById('payment-instructions').innerHTML = `
+  Please scan the QR code below or 
+  <a href="https://payconiq.com/t/1/653230A42C87810CB8B81D58?A=0&R=4TPCM%20Mini-Entreprise%20&D=4TPCM%20Mini-Entreprise%20" 
+     target="_blank" 
+     rel="noopener noreferrer" 
+     style="color: #0071e3; font-weight: bold; text-decoration: underline;">
+    click here to pay to complete your order.
+  </a>.
+`;
 
     document.getElementById('qr-modal').style.display = 'flex';
   });
