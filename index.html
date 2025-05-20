@@ -544,6 +544,7 @@ function updatePickupOptions() {
 }
 // Listen to changes
 pickupInput.addEventListener('input', updatePickupOptions);
+    
 roleSelect.addEventListener('change', updatePickupOptions);
     
     
@@ -721,6 +722,11 @@ document.getElementById('order-btn').addEventListener('click', () => {
     const em = document.getElementById('email').value.trim();
     const rl = document.getElementById('role').value;
     const pd = document.getElementById('pickup-date').value;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailPattern.test(em)) {
+  alert("Please enter a valid email address.");
+  return;
+}
     if (new Date(pd) < new Date(pickupInput.min)) {
   return alert("⚠️ That date is no longer available. Please choose a valid pickup day.");
 }
