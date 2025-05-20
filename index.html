@@ -475,7 +475,9 @@ const mm = String(minDate.getMonth() + 1).padStart(2, '0');
 const dd = String(minDate.getDate()).padStart(2, '0');
 const formattedMinDate = `${yyyy}-${mm}-${dd}`;
 pickupInput.min = formattedMinDate;
-pickupInput.value = formattedMinDate;
+if (pickupInput.value < formattedMinDate) {
+  pickupInput.value = formattedMinDate;
+}
     
 hideAllDayOptions();
 
