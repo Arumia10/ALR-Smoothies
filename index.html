@@ -445,34 +445,34 @@ function isTuesday(dateStr) {
 
     // Limit order time
 const now = new Date();
-const currentDay = now.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
+const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 2 = Tuesday
 const currentHour = now.getHours();
 
-// Determine if we’re past Tuesday 13:00
+// Check if we're past Tuesday 14:00
 const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
 
 // Start from today
 let minDate = new Date(now);
 
-// If we're after the Tuesday 14:00 deadline → jump to next week's Tuesday
+// Adjust minDate to next valid Tuesday (after deadline) or today/this week if before
 if (afterDeadline) {
+  // Skip to next week's Tuesday
   const daysUntilNextTuesday = (9 - currentDay) % 7;
   minDate.setDate(now.getDate() + daysUntilNextTuesday);
 } else {
-  // Else, set to upcoming Tuesday (can be today)
+  // This week's Tuesday
   const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
   minDate.setDate(now.getDate() + daysUntilThisTuesday);
 }
 
-// Format as YYYY-MM-DD
+// Format minDate
 const yyyy = minDate.getFullYear();
 const mm = String(minDate.getMonth() + 1).padStart(2, '0');
 const dd = String(minDate.getDate()).padStart(2, '0');
 const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-
-// Apply it to the input
 pickupInput.min = formattedMinDate;
 pickupInput.value = formattedMinDate;
+    
 hideAllDayOptions();
 
 function updatePickupOptions() {
