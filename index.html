@@ -813,7 +813,13 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   
   const returnInstructions = customerRole === "Student"
     ? "🔁 Return smoothie glasses every Wednesday in front of the Festsall between 09:30–09:50."
-    : "🔁 Return glasses anytime in the return box next to the fridge (outside Proffen Konferenz).";
+    : `
+    🔁 Return glasses anytime in the return box next to the fridge (outside Proffen Konferenz).
+    <br><br>
+    <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg" 
+         alt="Return Box Location" 
+         style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
+  `;
   
   mc.innerHTML = `
     <h2>Order Confirmed</h2>
@@ -845,4 +851,3 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   });
     
 </script>
-
