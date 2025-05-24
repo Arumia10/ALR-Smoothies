@@ -830,7 +830,7 @@ const formattedTotal = `${rawTotal}€`;
 
 
 // 6) Save order to Cloudflare Worker before clearing cart
-/*fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
+fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -853,7 +853,7 @@ const formattedTotal = `${rawTotal}€`;
   }
 
      // 7a) Send admin email
-    emailjs.send('service_j0mv0o1', 'template_1728je9', {
+    /*emailjs.send('service_j0mv0o1', 'template_1728je9', {
       Name: customerName,
       email: customerEmail,
       order_details: orderDetails,
