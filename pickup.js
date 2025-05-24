@@ -1,34 +1,36 @@
 // scripts/pickup.js
+
+export function enforceMinPickupDate() {
+  const pickupInput = document.getElementById('pickup-date');
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+
+  let minDate = new Date(now);
+  if (afterDeadline) {
+    const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
+    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+  } else {
+    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+  }
+
+  const yyyy = minDate.getFullYear();
+  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(minDate.getDate()).padStart(2, '0');
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
+
+  pickupInput.min = formattedMinDate;
+
+  if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
+    pickupInput.value = pickupInput.min;
+  }
+}
+
 export function setupPickupLogic() {
   const pickupInput = document.getElementById('pickup-date');
   const roleSelect = document.getElementById('role');
-
-  export function enforceMinPickupDate() {
-    const now = new Date();
-    const currentDay = now.getDay();
-    const currentHour = now.getHours();
-    const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
-
-    let minDate = new Date(now);
-    if (afterDeadline) {
-      const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
-      minDate.setDate(now.getDate() + daysUntilNextTuesday);
-    } else {
-      const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-      minDate.setDate(now.getDate() + daysUntilThisTuesday);
-    }
-
-    const yyyy = minDate.getFullYear();
-    const mm = String(minDate.getMonth() + 1).padStart(2, '0');
-    const dd = String(minDate.getDate()).padStart(2, '0');
-    const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-
-    pickupInput.min = formattedMinDate;
-
-    if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
-      pickupInput.value = pickupInput.min;
-    }
-  }
 
   function hideAllDayOptions() {
     document.getElementById('tuesday-options').classList.add('hidden');
@@ -89,7 +91,7 @@ export function setupPickupLogic() {
     }
   }
 
-  // Bind listeners
+  // Initial setup
   enforceMinPickupDate();
   hideAllDayOptions();
   pickupInput.addEventListener('input', updatePickupOptions);
