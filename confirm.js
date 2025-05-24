@@ -1,3 +1,5 @@
+import emailjs from 'https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.esm.min.js';
+<script>emailjs.init('QYlRz8dURmihM96yW');</script>
 import { cart, renderCart } from './cart.js';
 
 export function setupConfirmLogic(turnstileToken) {
