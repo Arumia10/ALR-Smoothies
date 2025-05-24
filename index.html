@@ -271,6 +271,13 @@
     turnstileToken = token;
   }
   </script>
+
+  <script type="module">
+  import { initializeCartButtons, renderCart, cart } from './scripts/cart.js';
+  initializeCartButtons();
+  renderCart();
+</script>
+  
 </body>
 
   <script>
@@ -396,13 +403,6 @@ document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
     locWed.classList.toggle('hidden', radio.value !== 'delivery');
   });
 });
-
-    
-<script type="module">
-  import { initializeCartButtons, renderCart, cart } from './scripts/cart.js';
-  initializeCartButtons();
-  renderCart();
-</script>
 
 
   
