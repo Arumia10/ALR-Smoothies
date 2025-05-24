@@ -272,19 +272,14 @@
   import { initializeOrderLogic } from './order.js';
   import { setupConfirmLogic } from './confirm.js';
 
-  // Initialize cart buttons and render existing cart state
-  initializeCartButtons();
-  renderCart();
-
-  // Setup pickup form logic
-  setupPickupLogic();
-
-  // Setup order modal & button logic
-  initializeOrderLogic();
-
-  // Set up confirm button and email logic with a placeholder token
-  const turnstileToken = ""; // ← You should dynamically assign this later
-  setupConfirmLogic(turnstileToken);
+  document.addEventListener("DOMContentLoaded", () => {
+    initializeCartButtons();
+    renderCart();
+    setupPickupLogic();
+    initializeOrderLogic();
+    const turnstileToken = "";
+    setupConfirmLogic(turnstileToken);
+  });
 </script>
 
 </body>
