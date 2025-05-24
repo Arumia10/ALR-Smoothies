@@ -268,7 +268,7 @@
 
 <script type="module">
   import { initializeCartButtons, renderCart, cart } from './cart.js';
-  import { setupPickupLogic } from './pickup.js';
+  import { setupPickupLogic, enforceMinPickupDate } from './pickup.js';
   import { initializeOrderLogic } from './order.js';
   import { setupConfirmLogic } from './confirm.js';
 
@@ -277,6 +277,7 @@
     renderCart();
     setupPickupLogic();
     initializeOrderLogic();
+    enforceMinPickupDate();
     const turnstileToken = "";
     setupConfirmLogic(turnstileToken);
   });
