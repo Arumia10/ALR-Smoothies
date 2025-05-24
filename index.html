@@ -265,33 +265,15 @@
       });
   </script>
 
-  <script>
-  let turnstileToken = "";
-  function onTurnstileSuccess(token) {
-    turnstileToken = token;
-  }
-  </script>
-
- <script type="module">
-  import { initializeCartButtons, renderCart, cart } from './cart.js';
-  initializeCartButtons();
-  renderCart();
-</script>
-
 
 <script type="module">
+  import { initializeCartButtons, renderCart } from './cart.js';
   import { setupPickupLogic } from './pickup.js';
-  setupPickupLogic();
-</script>
-
-
-  
-  
-<script type="module">
-  import { initializeCartButtons } from './cart.js';
   import { initializeOrderLogic } from './order.js';
 
   initializeCartButtons();
+  renderCart();
+  setupPickupLogic();
   initializeOrderLogic();
 </script>
 
