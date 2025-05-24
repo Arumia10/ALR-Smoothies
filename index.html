@@ -402,10 +402,11 @@ document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
   import { initializeCartButtons, renderCart, cart } from './scripts/cart.js';
   initializeCartButtons();
   renderCart();
+</script>
 
 
   
-
+<script>
   // 4) Order → Details
 document.getElementById('order-btn').addEventListener('click', () => {
   if (cart.length === 0) {
