@@ -853,7 +853,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   }
 
      // 7a) Send admin email
-    /* emailjs.send('service_j0mv0o1', 'template_1728je9', {
+    emailjs.send('service_j0mv0o1', 'template_1728je9', {
       Name: customerName,
       email: customerEmail,
       order_details: orderDetails,
@@ -878,7 +878,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
       order_id: data.order_id
     })
     .then(r => console.log('Customer email sent', r.status, r.text))
-    .catch(e => console.error('Customer email error', e));*/
+    .catch(e => console.error('Customer email error', e));
 
   // Proceed regardless of success for now
   cart.length = 0;
