@@ -3,7 +3,7 @@ export function setupPickupLogic() {
   const pickupInput = document.getElementById('pickup-date');
   const roleSelect = document.getElementById('role');
 
-  function enforceMinPickupDate() {
+  export function enforceMinPickupDate() {
     const now = new Date();
     const currentDay = now.getDay();
     const currentHour = now.getHours();
