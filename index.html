@@ -848,6 +848,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
     pickup_date: pickupDate,
     delivery_location: deliveryLocation,
     order_items: orderItems,
+    items_json: JSON.stringify(orderItems),
     total_amount: formattedTotal,
     cf_token: turnstileToken
   })
