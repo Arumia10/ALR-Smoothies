@@ -586,8 +586,9 @@ document.querySelectorAll('.btn-add').forEach(btn => {
       .replace('€', '')
       .replace(',', '.')
   );
+  const image = card.querySelector('img').src; // 🖼️ Grab the image source
   btn.addEventListener('click', () => {
-    cart.push({ name, price });
+    cart.push({ name, price, image });
     renderCart();
     btn.textContent = "✓ Added";
     setTimeout(() => btn.textContent = "Add to Cart", 2200);
@@ -785,18 +786,25 @@ if (!emailPattern.test(em)) {
       return;
     }
 
-    // Build order details string
-    const grouped = {};
-    cart.forEach(item => {
-      if (!grouped[item.name]) grouped[item.name] = { qty: 0, price: item.price };
-      grouped[item.name].qty++;
-    });
-    let orderDetails = '';
-    Object.entries(grouped).forEach(([name, info]) => {
-      orderDetails += `${info.qty}× ${name}: €${(info.price * info.qty)
-        .toFixed(2)
-        .replace('.', ',')}\n`;
-    });
+// Build structured order items array (with images)
+const grouped = {};
+cart.forEach(item => {
+  if (!grouped[item.name]) {
+    grouped[item.name] = {
+      qty: 0,
+      price: item.price,
+      image: item.image
+    };
+  }
+  grouped[item.name].qty++;
+});
+
+const orderItems = Object.entries(grouped).map(([name, info]) => ({
+  name,
+  qty: info.qty,
+  subtotal: (info.qty * info.price).toFixed(2),
+  image: info.image
+}));
 
 // Format the total
 const rawTotal = document.getElementById('cart-total').textContent
@@ -839,7 +847,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
     role: customerRole,
     pickup_date: pickupDate,
     delivery_location: deliveryLocation,
-    order_details: orderDetails,
+    order_items: orderItems,
     total_amount: formattedTotal,
     cf_token: turnstileToken
   })
