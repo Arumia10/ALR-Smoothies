@@ -144,6 +144,7 @@
     .modal-content input, .modal-content select { width:100%; padding:.5rem; margin:.5rem 0; border:1px solid #ddd; border-radius:6px; }
     #qr-code { width:200px; height:200px; margin:1rem auto; }
 
+
 .contact-section {
   text-align: center;
   padding: 2rem 1rem;
@@ -195,6 +196,17 @@
 .home-gallery .gallery img:hover {
   transform: scale(1.03);
 }
+
+
+
+
+
+
+
+
+
+
+
 
     
 
@@ -343,6 +355,7 @@
       <option value="Other">Other</option>
     </select>
 
+
     <div id="pickup-date-wrapper" class="hidden">
   <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
   <input type="date" id="pickup-date" required>
@@ -452,7 +465,7 @@ function enforceMinPickupDate() {
   }
 
   // Enforce hard-coded minimum date
-  const hardMinDate = new Date('2025-09-29');
+  const hardMinDate = new Date('2025-09-17');
   if (minDate < hardMinDate) {
     minDate = hardMinDate;
   }
@@ -460,7 +473,7 @@ function enforceMinPickupDate() {
   const yyyy = minDate.getFullYear();
   const mm = String(minDate.getMonth() + 1).padStart(2, '0');
   const dd = String(minDate.getDate()).padStart(2, '0');
-  const formattedMinDate = ${yyyy}-${mm}-${dd};
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
 
   pickupInput.min = formattedMinDate;
 
@@ -485,6 +498,7 @@ function isWednesday(dateStr) {
 function isTuesday(dateStr) {
   return new Date(dateStr).getUTCDay() === 2;
 }
+
 
     // Limit order time
   enforceMinPickupDate(); // ← ensures proper date
@@ -609,7 +623,7 @@ function renderCart() {
 
     const div = document.createElement('div');
     div.className = 'cart-item';
-    div.innerHTML = 
+    div.innerHTML = `
       <div style="display:flex; align-items:center; gap:0.5rem;">
         <button class="btn-qty" data-name="${name}" data-action="decrease">−</button>
         <span>${info.qty}× ${name}</span>
@@ -619,12 +633,12 @@ function renderCart() {
         <span>€${lineTotal.toFixed(2).replace('.', ',')}</span>
         <button class="btn-remove" data-name="${name}">🗑️</button>
       </div>
-    ;
+    `;
     container.appendChild(div);
   });
 
   document.getElementById('cart-total').textContent =
-    Total: €${total.toFixed(2).replace('.', ',')};
+    `Total: €${total.toFixed(2).replace('.', ',')}`;
 
   // Enable or disable the order button
   orderBtn.disabled = cart.length === 0;
@@ -700,7 +714,7 @@ document.getElementById('order-btn').addEventListener('click', () => {
   const yyyy = minDate.getFullYear();
   const mm = String(minDate.getMonth() + 1).padStart(2, '0');
   const dd = String(minDate.getDate()).padStart(2, '0');
-  const formattedMinDate = ${yyyy}-${mm}-${dd};
+  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
 
   // Set date limits
   pickupInput.min = formattedMinDate;
@@ -740,7 +754,7 @@ if (!emailPattern.test(em)) {
       return alert('Please fill all fields and select a pickup date');
     }
     document.getElementById('details-modal').style.display = 'none';
-    document.getElementById('payment-instructions').innerHTML = 
+    document.getElementById('payment-instructions').innerHTML = `
   Please scan the QR code below or 
   <a href="https://payconiq.com/t/1/653230A42C87810CB8B81D58?A=0&R=4TPCM%20Mini-Entreprise%20&D=4TPCM%20Mini-Entreprise%20" 
      target="_blank" 
@@ -748,7 +762,7 @@ if (!emailPattern.test(em)) {
      style="color: #0071e3; font-weight: bold; text-decoration: underline;">
     click here to pay.
   </a>.
-;
+`;
 
     document.getElementById('qr-modal').style.display = 'flex';
   });
@@ -765,12 +779,12 @@ if (!emailPattern.test(em)) {
     // Build customer details
     const fn = document.getElementById('fname').value.trim();
     const ln = document.getElementById('lname').value.trim();
-    const customerName = ${fn} ${ln};
+    const customerName = `${fn} ${ln}`;
     const customerEmail = document.getElementById('email').value.trim();
     const customerRole = document.getElementById('role').value;
     // Reformat pickup date
     const [Y, M, D] = document.getElementById('pickup-date').value.split('-');
-    const pickupDate = ${D}/${M}/${Y};
+    const pickupDate = `${D}/${M}/${Y}`;
     const token = turnstileToken;
 
     if (!token) {
@@ -802,7 +816,7 @@ const orderItems = Object.entries(grouped).map(([name, info]) => ({
 const rawTotal = document.getElementById('cart-total').textContent
   .replace('Total: €', '')
   .replace(',', '.');
-const formattedTotal = ${rawTotal}€;
+const formattedTotal = `${rawTotal}€`;
 
     // determine which location to include
     let deliveryLocation = '';
@@ -811,22 +825,23 @@ const formattedTotal = ${rawTotal}€;
     if (wd === 2) {
       // Tuesday delivery at fixed time
       const loc = document.getElementById('location-tue').value.trim();
-      deliveryLocation = 14:00–14:20 @ ${loc};
+      deliveryLocation = `14:00–14:20 @ ${loc}`;
     } else if (wd === 3) {
   const role = document.getElementById('role').value;
 
   if (role === 'Student') {
-    deliveryLocation = 09:30–09:50 @ Virum Festsall;
+    deliveryLocation = `09:30–09:50 @ Virum Festsall`;
   } else {
     const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
     if (choice === 'delivery') {
       const loc = document.getElementById('location-wed-input').value.trim();
-      deliveryLocation = 10:00–10:20 @ ${loc};
+      deliveryLocation = `10:00–10:20 @ ${loc}`;
     } else {
-      deliveryLocation = 09:30–09:50 @ Proffen Konferenz;
+      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
     }
   }
 }
+
 
 // 6) Save order to Cloudflare Worker before clearing cart
 fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
@@ -872,7 +887,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
       order_details: orderDetails,
       total_amount: formattedTotal,
       pickup_date: pickupDate,
-      pickup_info: Delivery window chosen,
+      pickup_info: `Delivery window chosen`,
       delivery_location: deliveryLocation,
       order_id: data.order_id
     })
@@ -887,15 +902,15 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
   
   const returnInstructions = customerRole === "Student"
     ? "🔁 Return smoothie glasses every Wednesday in front of the Festsall between 09:30–09:50."
-    : 
+    : `
     🔁 Return glasses anytime in the return box next to the staircase (outside Proffen Konferenz).
     <br><br>
     <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg" 
          alt="Return Box Location" 
          style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
-  ;
+  `;
   
-  mc.innerHTML = 
+  mc.innerHTML = `
     <h2>Order Confirmed</h2>
     <p>Thank you! Your order has been confirmed.</p>
     <p><strong>Pickup Date:</strong> ${pickupDate}</p>
@@ -904,7 +919,7 @@ fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
     <br>
     <p>${returnInstructions}</p>
     <button id="close-confirm" class="btn">Close</button>
-  ;
+  `;
 
   document.getElementById('close-confirm').addEventListener('click', () => {
     document.getElementById('qr-modal').style.display = 'none';
