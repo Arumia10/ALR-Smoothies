@@ -592,20 +592,23 @@ document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
 // ----------------------------
 const cart = [];
 
-document.querySelectorAll('.btn-add').forEach(btn => {
-  const card = btn.closest('.card');
-  const name = card.querySelector('h3').textContent;
-  const price = parseFloat(
-    card.querySelector('.price').textContent
-      .replace('€', '')
-      .replace(',', '.')
-  );
-  const image = card.querySelector('img').src; // 🖼️ Grab the image source
-  btn.addEventListener('click', () => {
-    cart.push({ name, price, image });
-    renderCart();
-    btn.textContent = "✓ Added";
-    setTimeout(() => btn.textContent = "Add to Cart", 2200);
+window.addEventListener('load', () => {
+  document.querySelectorAll('.btn-add').forEach(btn => {
+    const card = btn.closest('.card');
+    const name = card.querySelector('h3').textContent;
+    const price = parseFloat(
+      card.querySelector('.price').textContent
+        .replace('€', '')
+        .replace(',', '.')
+    );
+    const image = card.querySelector('img').src;
+
+    btn.addEventListener('click', () => {
+      cart.push({ name, price, image });
+      renderCart();
+      btn.textContent = "✓ Added";
+      setTimeout(() => btn.textContent = "Add to Cart", 2200);
+    });
   });
 });
 
