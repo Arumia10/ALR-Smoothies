@@ -360,19 +360,19 @@
   <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
   <input type="date" id="pickup-date" required>
   <p style="font-size:0.85rem; color:#777; margin-top: 0.25rem;">
-    ⚠️ Orders after Tuesday 14:00 are for next week
+    ⚠️ Orders after Wednesday 08:00 are for next week
   </p>
     </div>
 
     <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
-      <p><strong>Tuesday Delivery:</strong> 14:00–14:20</p>
-      <input type="text" id="location-tue" placeholder="Delivery Location (e.g. A110)" required>
+      <p><strong>Thursday:</strong></p>
+      <label id="radio-pickup"><input type="radio" name="thur-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
     </div>
 
     <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
       <p><strong>Wednesday:</strong></p>
       <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
-      <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (10:00–10:20)</label>
+      <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (13:05–13:50)</label>
       <div id="location-wed" class="hidden" style="margin-top:.5rem;">
         <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)" required>
       </div>
@@ -453,15 +453,15 @@ function enforceMinPickupDate() {
   const now = new Date();
   const currentDay = now.getDay(); // 0 = Sunday, ..., 2 = Tuesday
   const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+  const afterDeadline = (currentDay > 3) || (currentDay === 3 && currentHour >= 8);
 
   let minDate = new Date(now);
   if (afterDeadline) {
-    const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
-    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+    const daysUntilNextWednesday = ((9 - currentDay) % 7) || 7;
+    minDate.setDate(now.getDate() + daysUntilNextWednesday);
   } else {
-    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+    const daysUntilThisWednesday = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisWednesday);
   }
 
   // Enforce hard-coded minimum date
@@ -496,7 +496,7 @@ function isWednesday(dateStr) {
 }
 
 function isTuesday(dateStr) {
-  return new Date(dateStr).getUTCDay() === 2;
+  return new Date(dateStr).getUTCDay() === 4;
 }
 
 
@@ -539,11 +539,11 @@ function updatePickupOptions() {
       document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
     }
   } else {
-    label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
+    label.textContent = 'Pickup Date (Wednesdays & Thursdays)';
     document.getElementById('radio-delivery').classList.remove('hidden');
     document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
 
-    if (day === 2) {
+    if (day === 4) {
       document.getElementById('tuesday-options').classList.remove('hidden');
       pickupInput.setCustomValidity('');
     } else if (day === 3) {
@@ -699,16 +699,16 @@ document.getElementById('order-btn').addEventListener('click', () => {
   const now = new Date();
   const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+  const afterDeadline = (currentDay > 3) || (currentDay === 3 && currentHour >= 8);
 
   let minDate = new Date(now);
 
   if (afterDeadline) {
-    const daysUntilNextTuesday = (9 - currentDay) % 7;
-    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+    const daysUntilNextWeek = (9 - currentDay) % 7;
+    minDate.setDate(now.getDate() + daysUntilNextWeek);
   } else {
-    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+    const daysUntilThisWeek = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisWeek);
   }
 
   const yyyy = minDate.getFullYear();
