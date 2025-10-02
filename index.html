@@ -371,8 +371,12 @@
 
     <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
       <p><strong>Wednesday:</strong></p>
-      <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
-      <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (10:00–10:20)</label>
+      <label id="radio-pickup">
+        <input type="radio" name="wed-option" value="pickup"> Pickup @ Proffen Konferenz (09:30–09:50)
+      </label>
+      <label id="radio-delivery">
+        <input type="radio" name="wed-option" value="delivery"> Delivery (13:05–13:50)
+      </label>
       <div id="location-wed" class="hidden" style="margin-top:.5rem;">
         <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)" required>
       </div>
@@ -523,21 +527,22 @@ function updatePickupOptions() {
 
   hideAllDayOptions();
 
-  if (role === "Student") {
-    label.textContent = 'Pickup Date (Wednesdays only)';
-    document.getElementById('radio-delivery').classList.add('hidden');
+if (role === "Student") {
+  label.textContent = 'Pickup Date (Wednesdays only)';
+  document.getElementById('radio-delivery').classList.remove('hidden');
 
-    if (day !== 3) {
-      pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
-      pickupInput.reportValidity();
-    } else {
-      pickupInput.setCustomValidity('');
-      document.getElementById('wednesday-options').classList.remove('hidden');
-      document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
-      document.getElementById('location-wed').classList.add('hidden');
-      document.getElementById('location-wed-input').value = 'Virum Festsall';
-      document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
-    }
+  if (day !== 3) {
+    pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
+    pickupInput.reportValidity();
+  } else {
+    pickupInput.setCustomValidity('');
+    document.getElementById('wednesday-options').classList.remove('hidden');
+    // Default to pickup option
+    document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
+    document.getElementById('location-wed').classList.add('hidden');
+    document.getElementById('location-wed-input').value = '';
+  }
+}
   } else {
     label.textContent = 'Pickup Date (Tuesdays & Wednesdays)';
     document.getElementById('radio-delivery').classList.remove('hidden');
@@ -818,27 +823,23 @@ const rawTotal = document.getElementById('cart-total').textContent
   .replace(',', '.');
 const formattedTotal = `${rawTotal}€`;
 
-    // determine which location to include
-    let deliveryLocation = '';
-    const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
+// determine which location to include
+let deliveryLocation = '';
+const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
 
-    if (wd === 2) {
-      // Tuesday delivery at fixed time
-      const loc = document.getElementById('location-tue').value.trim();
-      deliveryLocation = `14:00–14:20 @ ${loc}`;
-    } else if (wd === 3) {
+if (wd === 2) {
+  // Tuesday: only pickup at Proffen Konferenz
+  deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
+} else if (wd === 3) {
   const role = document.getElementById('role').value;
 
-  if (role === 'Student') {
-    deliveryLocation = `09:30–09:50 @ Virum Festsall`;
+  const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
+  if (choice === 'delivery') {
+    const loc = document.getElementById('location-wed-input').value.trim();
+    deliveryLocation = `13:05–13:50 @ ${loc}`;
   } else {
-    const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
-    if (choice === 'delivery') {
-      const loc = document.getElementById('location-wed-input').value.trim();
-      deliveryLocation = `10:00–10:20 @ ${loc}`;
-    } else {
-      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
-    }
+    // Wednesday pickup for both students and teachers
+    deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
   }
 }
 
