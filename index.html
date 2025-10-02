@@ -444,24 +444,25 @@
 </body>
 
   <script>
+
+    
 function enforceMinPickupDate() {
   const now = new Date();
-  const currentDay = now.getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed
+  const currentDay = now.getDay(); // 0=Sun, 1=Mon, ..., 3=Wed
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
   const afterDeadline =
-    currentDay > 3 ||
-    (currentDay === 3 && (currentHour > 8 || (currentHour === 8 && currentMinute >= 30))) ||
-    (currentDay === 2 && currentHour >= 14);
+    currentDay > 3 || // Thursday or later
+    (currentDay === 3 && (currentHour > 8 || (currentHour === 8 && currentMinute >= 30))); // Wednesday after 08:30
 
   let minDate = new Date(now);
   if (afterDeadline) {
-    const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
-    minDate.setDate(now.getDate() + daysUntilNextTuesday);
+    const daysUntilNextWednesday = ((10 - currentDay) % 7) || 7;
+    minDate.setDate(now.getDate() + daysUntilNextWednesday);
   } else {
-    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+    const daysUntilThisWednesday = (3 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilThisWednesday);
   }
 
   const yyyy = minDate.getFullYear();
@@ -476,6 +477,8 @@ function enforceMinPickupDate() {
   }
 }
 
+
+    
 const pickupInput = document.getElementById('pickup-date');
     enforceMinPickupDate();
 const roleSelect = document.getElementById('role');
