@@ -360,13 +360,8 @@
   <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
   <input type="date" id="pickup-date" required>
   <p style="font-size:0.85rem; color:#777; margin-top: 0.25rem;">
-    ⚠️ Orders after Tuesday 14:00 are for next week
+    ⚠️ Orders made after Wednesday 08:30 are for next week
   </p>
-    </div>
-
-    <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
-      <p><strong>Tuesday Delivery:</strong> 14:00–14:20</p>
-      <input type="text" id="location-tue" placeholder="Delivery Location (e.g. A110)" required>
     </div>
 
     <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
@@ -455,20 +450,28 @@
   <script>
 function enforceMinPickupDate() {
   const now = new Date();
-  const currentDay = now.getDay(); // 0 = Sunday, ..., 2 = Tuesday
+  const currentDay = now.getDay(); // 0 = Sun, 1 = Mon, ..., 2 = Tue, 3 = Wed
   const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+  const currentMinute = now.getMinutes();
+
+  // Check if it's too late for this week
+  const afterCutoff =
+    currentDay > 3 || // After Wednesday
+    (currentDay === 3 && (currentHour > 8 || (currentHour === 8 && currentMinute >= 30))) || // Wednesday after 08:30
+    (currentDay === 2 && currentHour >= 14); // Tuesday after 14:00 (keep existing condition)
 
   let minDate = new Date(now);
-  if (afterDeadline) {
+  if (afterCutoff) {
+    // Move to next week's Tuesday
     const daysUntilNextTuesday = ((9 - currentDay) % 7) || 7;
     minDate.setDate(now.getDate() + daysUntilNextTuesday);
   } else {
-    const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisTuesday);
+    // Still in time for this week's Tuesday or Wednesday
+    const daysUntilNextAvailableDay = (2 - currentDay + 7) % 7;
+    minDate.setDate(now.getDate() + daysUntilNextAvailableDay);
   }
 
-  // Enforce hard-coded minimum date
+  // Enforce hard minimum date (fallback)
   const hardMinDate = new Date('2025-09-29');
   if (minDate < hardMinDate) {
     minDate = hardMinDate;
@@ -481,8 +484,8 @@ function enforceMinPickupDate() {
 
   pickupInput.min = formattedMinDate;
 
-  if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
-    pickupInput.value = pickupInput.min;
+  if (new Date(pickupInput.value) < new Date(formattedMinDate)) {
+    pickupInput.value = formattedMinDate;
   }
 }
 
