@@ -199,44 +199,40 @@
      <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
         <p><strong>Wednesday:</strong></p>
       
-        <label id="radio-pickup" class="pickup-choice" style="margin-bottom:0.4rem;">
+        <label id="radio-pickup" class="pickup-choice">
           <input type="radio" name="wed-option" value="pickup">
-          Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)
+          <span>Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</span>
         </label>
-      
-        <label id="radio-delivery" class="pickup-choice" style="margin-bottom:0.4rem;">
+        
+        <label id="radio-delivery" class="pickup-choice">
           <input type="radio" name="wed-option" value="delivery">
-          Delivery (13:05–13:50)
+          <span>Delivery (13:05–13:50)</span>
         </label>
-      
-        <div id="location-wed" class="hidden" style="margin-top:.5rem; margin-bottom:0.5rem;">
-          <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)">
-        </div>
-      
-        <label id="radio-fridge" class="pickup-choice" style="margin-bottom:0.4rem;">
+        
+        <label id="radio-fridge" class="pickup-choice">
           <input type="radio" name="wed-option" value="fridge">
-          Collect from the fridge (outside the Proffenkonferenz)
+          <span>Collect from the fridge (outside the Proffenkonferenz)</span>
         </label>
-      
-        <label id="radio-student-pickup" class="pickup-choice hidden" style="margin-bottom:0.4rem;">
+        
+        <label id="radio-student-pickup" class="pickup-choice hidden">
           <input type="radio" name="wed-option" value="student-pickup">
-          Pickup in front of the library at 12:55
+          <span>Pickup in front of the library at 12:55</span>
         </label>
       </div>
       
       <div id="thursday-options" class="hidden" style="margin-top:1rem; text-align:left;">
         <p><strong>Thursday:</strong></p>
-        <label>
+        <label class="pickup-choice">
           <input type="radio" name="pickup-option" value="fridge-thu" checked>
-          Pickup from the fridge (outside the Proffenkonferenz)
+          <span>Collect from the fridge (outside the Proffenkonferenz)</span>
         </label>
       </div>
       
       <div id="friday-options" class="hidden" style="margin-top:1rem; text-align:left;">
         <p><strong>Friday:</strong></p>
-        <label>
+        <label class="pickup-choice">
           <input type="radio" name="pickup-option" value="fridge-fri" checked>
-          Pickup from the fridge (outside the Proffenkonferenz)
+          <span>Collect from the fridge (outside the Proffenkonferenz)</span>
         </label>
       </div>
 
