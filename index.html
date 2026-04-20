@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com;
+    script-src 'self' https://challenges.cloudflare.com blob:;
     style-src 'self' 'unsafe-inline';
     img-src 'self' https://raw.githubusercontent.com https://github.com data:;
     frame-src https://challenges.cloudflare.com;
-    connect-src 'self' https://vitaminboostalr.9fhw2ps22t.workers.dev;
+    connect-src 'self' https://vitaminboostalr.9fhw2ps22t.workers.dev https://challenges.cloudflare.com;
   ">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
@@ -31,7 +31,7 @@
     Loading VitaminBoost...
   </div>
 
-  <div id="main-content" style="display: block;">
+  <div id="main-content" style="display: none;">
     <div style="max-width: 600px; margin: 0 auto; padding: 1rem;">
 
       <header class="header">
@@ -262,33 +262,7 @@
     <p>© 2026 VitaminBoost ALR. All rights reserved.</p>
   </footer>
 
-  <script type="module">
-    import { initializeCartButtons, renderCart } from './cart.js';
-    import { setupPickupLogic } from './pickup.js';
-    import { initializeOrderLogic } from './order.js';
-
-    window.turnstileToken = "";
-
-    window.onTurnstileSuccess = function(token) {
-      window.turnstileToken = token;
-    };
-
-    window.addEventListener('load', function () {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      setTimeout(() => window.scrollTo(0, 0), 10);
-
-      initializeCartButtons();
-      renderCart();
-      setupPickupLogic();
-      initializeOrderLogic();
-    });
-
-    window.addEventListener('click', e => {
-      if (e.target.classList.contains('modal')) {
-        e.target.style.display = 'none';
-      }
-    });
-  </script>
+  <script type="module" src="./main.js"></script>
+  
 </body>
 </html>
