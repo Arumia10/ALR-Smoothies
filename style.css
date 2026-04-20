@@ -322,6 +322,18 @@ section { padding:2rem 1rem; }
   display: block;
 }
 
+.pickup-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.pickup-choice input[type="radio"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
 .btn-qty:hover,
 .btn-remove:hover {
   background: #e2e2e2;
