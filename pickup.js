@@ -49,6 +49,7 @@ export function updatePickupOptions() {
   const roleSelect = document.getElementById('role');
   const label = document.getElementById('pickup-date-label');
   const wrapper = document.getElementById('pickup-date-wrapper');
+  const locationWed = document.getElementById('location-wed');
 
   enforceMinPickupDate();
 
@@ -70,21 +71,16 @@ export function updatePickupOptions() {
       showById('wednesday-options');
       pickupInput.setCustomValidity('');
 
-      const studentPickupRadio = document.querySelector('input[name="wed-option"][value="student-pickup"]');
-      if (studentPickupRadio) studentPickupRadio.checked = true;
-
       hideById('radio-pickup');
       hideById('radio-delivery');
       hideById('radio-fridge');
-      hideById('location-wed');
       showById('radio-student-pickup');
+
+      if (locationWed) locationWed.classList.add('hidden');
+
+      const studentRadio = document.querySelector('input[name="wed-option"][value="student-pickup"]');
+      if (studentRadio) studentRadio.checked = true;
     } else {
-      hideById('radio-pickup');
-      hideById('radio-delivery');
-      hideById('radio-fridge');
-      hideById('location-wed');
-      showById('radio-student-pickup');
-
       pickupInput.setCustomValidity('As a student, you may only select Wednesday.');
       pickupInput.reportValidity();
     }
@@ -94,16 +90,14 @@ export function updatePickupOptions() {
 
   label.textContent = 'Pickup Date (Wednesday, Thursday or Friday)';
 
-  showById('radio-pickup');
-  showById('radio-delivery');
-  showById('radio-fridge');
-  hideById('radio-student-pickup');
-
   if (day === 3) {
     showById('wednesday-options');
     pickupInput.setCustomValidity('');
 
-    document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
+    showById('radio-pickup');
+    showById('radio-delivery');
+    showById('radio-fridge');
+    hideById('radio-student-pickup');
 
     const checked = document.querySelector('input[name="wed-option"]:checked');
     if (!checked) {
@@ -111,20 +105,20 @@ export function updatePickupOptions() {
       if (fridgeRadio) fridgeRadio.checked = true;
     }
 
-    const deliveryChecked = document.querySelector('input[name="wed-option"]:checked')?.value === 'delivery';
-    document.getElementById('location-wed').classList.toggle('hidden', !deliveryChecked);
+    const selected = document.querySelector('input[name="wed-option"]:checked')?.value;
+    if (locationWed) locationWed.classList.toggle('hidden', selected !== 'delivery');
   } else if (day === 4) {
     showById('thursday-options');
     pickupInput.setCustomValidity('');
-    hideById('location-wed');
+    if (locationWed) locationWed.classList.add('hidden');
   } else if (day === 5) {
     showById('friday-options');
     pickupInput.setCustomValidity('');
-    hideById('location-wed');
+    if (locationWed) locationWed.classList.add('hidden');
   } else {
-    hideById('location-wed');
     pickupInput.setCustomValidity('Please choose a Wednesday, Thursday or Friday');
     pickupInput.reportValidity();
+    if (locationWed) locationWed.classList.add('hidden');
   }
 }
 
