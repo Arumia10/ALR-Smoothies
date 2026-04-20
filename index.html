@@ -3,220 +3,19 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' https://raw.githubusercontent.com https://github.com data:;
-  frame-src https://challenges.cloudflare.com;
-  connect-src 'self' https://vitaminboostalr.9fhw2ps22t.workers.dev https://api.emailjs.com;
-">
-  <!-- Add this script once in your <head> -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' https://raw.githubusercontent.com https://github.com data:;
+    frame-src https://challenges.cloudflare.com;
+    connect-src 'self' https://vitaminboostalr.9fhw2ps22t.workers.dev;
+  ">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <title>VitaminBoost ALR – Fresh Smoothies</title>
-  <style>
-    .hidden { display: none; }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial; max-width:600px; margin:0 auto; background:#fff; color:#333; line-height:1.4; }
-    :root { --accent:#0071e3; }
-   
-       header.header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      padding: 1rem;
-      border-bottom: 1px solid #eaeaea;
-    }
-
-      .logo {
-        font-size: 1.6rem;
-        font-weight: 600;
-        color: var(--accent);
-        line-height: 0.6; /* reduced from 1.2 */
-      }
-
-      .logo-main,
-      .logo-sub {
-        display: block;
-        margin: 0;
-        padding: 0;
-      }
-    nav a { margin-left:1rem; text-decoration:none; color:#333; font-size:.9rem; }
-    nav a:hover { color:#777; }
-    .nav-links {
-  display: flex;
-  flex-wrap: wrap;     /* Allows wrapping of the entire nav group */
-  gap: 1.5rem;
-  justify-content: flex-end;
-  flex: 1;              /* So it pushes to fill remaining space */
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: #333;
-  font-size: 0.95rem;
-  white-space: nowrap;
-}
-
-.nav-links a:hover {
-  color: #777;
-}
-    .hero {
-  background: linear-gradient(135deg, #ffecd2, #fcb69f);
-  text-align: center;
-  padding: 4rem 2rem;
-  border-radius: 12px;
-  margin: 2rem 1rem;
-}
-.hero h1 {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: #222;
-}
-.hero p {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 1.5rem;
-}
-    .btn { background:var(--accent); color:#fff; padding:.7rem 1.4rem; border:none; border-radius:6px; font-size:1rem; cursor:pointer; text-decoration:none; transition:background .3s; }
-    .btn:hover { background:#005bb8; }
-    .btn-secondary { background:#ccc; color:#333; }
-    .btn-secondary:hover { background:#bbb; }
-    section { padding:2rem 1rem; }
-    .vacuum { text-align:center; background:#f9f9f9; }
-    .vacuum h2 { font-size:1.6rem; margin-bottom:.5rem; }
-    .vacuum p { max-width:500px; margin:0 auto 1.5rem; color:#555; }
-    .vacuum img { width:100%; max-width:500px; border-radius:8px; margin:0 auto 1rem; display:block; }
-    .vacuum .sub { color:#555; font-size:.9rem; margin-bottom:1.5rem; }
-    .menu h2 { text-align:center; font-size:1.5rem; margin-bottom:1.5rem; }
-    .cards { display:grid; grid-template-columns:repeat(2, 1fr); gap:1.5rem; }
-    @media(min-width:992px){ .cards { grid-template-columns:repeat(3,1fr); } }
-    .card {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100%; /* Ensure equal height for cards */
-    }
-    .card img { width:100%; display:block; }
-    .card-content {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  justify-content: space-between;
-  padding: 1rem;
-  text-align: center;
-}
-    .card-content h3 { font-size:1.1rem; margin-bottom:.5rem; }
-    .card-content p { color:#555; font-size:.9rem; margin-bottom:.3rem; }
-    .card-content .sub { color:#777; font-size:.85rem; margin-bottom:.5rem; }
-    .price { font-weight:bold; margin-bottom:1rem; }
-
-.cart-panel {
-  background: #fff;
-  padding: 1.5rem;
-  margin: 2rem 1rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  text-align: center;
-}
-.cart-items {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-  text-align: left;
-}
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-.cart-total {
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-}
-    #order-btn { width:100%; }
-    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-    .modal-content { background:#fff; padding:1.5rem; border-radius:8px; text-align:center; width:90%; max-width:520px; position:relative; }
-    .close { position:absolute; top:1rem; right:1rem; cursor:pointer; font-size:1.2rem; }
-    .modal-content input, .modal-content select { width:100%; padding:.5rem; margin:.5rem 0; border:1px solid #ddd; border-radius:6px; }
-    #qr-code { width:200px; height:200px; margin:1rem auto; }
-
-
-.contact-section {
-  text-align: center;
-  padding: 2rem 1rem;
-  background: #f7f7f7;
-  border-radius: 8px;
-  margin: 2rem 1rem;
-}
-
-.contact-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #0071e3;
-}
-
-.contact-section p {
-  font-size: 1rem;
-  color: #444;
-}
-.footer {
-  text-align: center;
-  font-size: 0.85rem;
-  color: #888;
-  border-top: 1px solid #eaeaea;
-  padding: 1rem;
-  margin-top: 3rem;
-}
-    
-    .home-gallery {
-  padding: 2rem 1rem;
-  background: #fefefe;
-}
-
-.home-gallery .gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.home-gallery .gallery img {
-  width: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-  height: 140px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: transform 0.3s;
-}
-
-.home-gallery .gallery img:hover {
-  transform: scale(1.03);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-  </style>
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-  <script>emailjs.init('QYlRz8dURmihM96yW');</script>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<!-- Loader -->
   <div id="loader" style="
     position: fixed;
     inset: 0;
@@ -231,12 +30,11 @@
   ">
     Loading VitaminBoost...
   </div>
-  
-<!-- All actual site content inside here -->
- <div id="main-content" style="display: block;">
+
+  <div id="main-content" style="display: block;">
     <div style="max-width: 600px; margin: 0 auto; padding: 1rem;">
 
-      <header class = "header">
+      <header class="header">
         <div class="logo">
           <span class="logo-main">VitaminBoost</span><br>
           <span class="logo-sub">ALR</span>
@@ -249,7 +47,7 @@
         </nav>
       </header>
 
-      <section class="hero" style="
+      <section id="home" class="hero" style="
         text-align: center;
         padding: 1.5rem 1rem;
         background: linear-gradient(135deg, #ffecd2, #fcb69f);
@@ -266,10 +64,10 @@
         <a href="#menu" class="btn" style="margin-top: 1.5rem; display: inline-block;">Order Now</a>
       </section>
 
-      <section id="vacuum" class="vacuum" style="text-align: center ; padding: 3rem 0; border-radius: 12px; margin: 2rem 0;">
+      <section id="vacuum" class="vacuum" style="text-align: center; padding: 3rem 0; border-radius: 12px; margin: 2rem 0;">
         <h2>Our Vacuum Blending Process</h2>
         <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Regular%20vs%20Vacuum%20Blended.png" alt="Blender Comparison" style="width: 100%; max-width: 500px; border-radius: 12px;">
-        <p style="margin: 1rem auto; max-width: 500px;">At VitaminBoost ALR, we use a <strong> Vacuum Blender</strong> to remove air before blending. Benefits:</p>
+        <p style="margin: 1rem auto; max-width: 500px;">At VitaminBoost ALR, we use a <strong>Vacuum Blender</strong> to remove air before blending. Benefits:</p>
         <ul style="list-style:none; padding: 0; text-align: left; max-width: 500px; margin: 0 auto;">
           <li>🍏 Reduces oxidation & browning</li>
           <li>🌈 Preserves vibrant color & flavor</li>
@@ -283,30 +81,65 @@
         <h2 style="text-align: center;">Our Flavors</h2>
         <div class="cards">
           <div class="card">
-            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Red%20Smoothie.jpg" alt="Red Smoothie">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Red%20Smoothie.jpg" alt="Red Berries">
             <div class="card-content">
-              <h3>Red Smoothie</h3>
+              <h3>Red Berries</h3>
               <p>Strawberry, Raspberry, Dates</p>
               <p class="sub">330 ml · Vacuum Blended</p>
               <div class="price">€3,50</div>
               <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
             </div>
           </div>
+
           <div class="card">
-            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Yellow%20Smoothie.jpg" alt="Tropical Twist">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Purple%20Smoothie.jpg" alt="Ruby Boost">
             <div class="card-content">
-              <h3>Tropical Twist</h3>
-              <p>Orange, Mango, Pineapple</p>
+              <h3>Ruby Boost</h3>
+              <p>Strawberry, Raspberry, Blueberry, Blackberry, Dates</p>
               <p class="sub">330 ml · Vacuum Blended</p>
               <div class="price">€3,50</div>
               <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
             </div>
           </div>
+
           <div class="card">
-            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Purple%20Smoothie.jpg" alt="Berry Blast">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Red%20Smoothie.jpg" alt="Cherry Berry">
             <div class="card-content">
-              <h3>Berry Blast</h3>
-              <p>Strawberry, Raspberry, Blueberry, Blackberry, Dates</p>
+              <h3>Cherry Berry</h3>
+              <p>Cherry, Strawberry, Raspberry, Dates</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Yellow%20Smoothie.jpg" alt="Tropical Fire">
+            <div class="card-content">
+              <h3>Tropical Fire</h3>
+              <p>Mango, Pineapple, Orange, Ginger</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Yellow%20Smoothie.jpg" alt="Golden Sunrise">
+            <div class="card-content">
+              <h3>Golden Sunrise</h3>
+              <p>Mango, Orange, Banana, Dates</p>
+              <p class="sub">330 ml · Vacuum Blended</p>
+              <div class="price">€3,50</div>
+              <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Green%20Smoothie.jpg" alt="Green Refresh">
+            <div class="card-content">
+              <h3>Green Refresh</h3>
+              <p>Spinach, Kiwi, Apple, Dates</p>
               <p class="sub">330 ml · Vacuum Blended</p>
               <div class="price">€3,50</div>
               <button class="btn btn-add" style="width: 120px; text-align: center; white-space: nowrap;">Add to Cart</button>
@@ -319,7 +152,7 @@
         <h2>Your Cart</h2>
         <div id="cart-items"></div>
         <div id="cart-total" class="cart-total">Total: €0,00</div>
-        <button id="order-btn" class="btn">Order</button>
+        <button id="order-btn" class="btn" disabled>Order</button>
       </div>
 
       <section id="promise" style="padding: 2rem 1rem; background-color: #f4f9ff; border-radius: 12px; margin: 2rem 0;">
@@ -340,603 +173,111 @@
     </div>
   </div>
 
-  <!-- Details Modal -->
-<div class="modal" id="details-modal">
-  <div class="modal-content">
-    <span class="close" id="close-details">×</span>
-    <h2>Your Details</h2>
-    <input type="text" id="fname" placeholder="First Name" required>
-    <input type="text" id="lname" placeholder="Surname" required>
-    <input type="email" id="email" placeholder="Email Address" required>
-    <select id="role" required>
-      <option value="" disabled selected>Select role</option>
-      <option value="Student">Student</option>
-      <option value="Teacher">Teacher</option>
-      <option value="Other">Other</option>
-    </select>
+  <div class="modal" id="details-modal">
+    <div class="modal-content">
+      <span class="close" id="close-details">×</span>
+      <h2>Your Details</h2>
+      <input type="text" id="fname" placeholder="First Name" required>
+      <input type="text" id="lname" placeholder="Surname" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <select id="role" required>
+        <option value="" disabled selected>Select role</option>
+        <option value="Student">Student</option>
+        <option value="Teacher">Teacher</option>
+        <option value="Other">Other</option>
+      </select>
 
+      <div id="pickup-date-wrapper" class="hidden">
+        <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
+        <input type="date" id="pickup-date" required>
+        <p style="font-size:0.85rem; color:#777; margin-top: 0.25rem;">
+          ⚠️ Orders after Tuesday 14:00 are for next week
+        </p>
+      </div>
 
-    <div id="pickup-date-wrapper" class="hidden">
-  <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
-  <input type="date" id="pickup-date" required>
-  <p style="font-size:0.85rem; color:#777; margin-top: 0.25rem;">
-    ⚠️ Orders after Wednesday 08:00 are for next week
-  </p>
+      <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
+        <p><strong>Tuesday:</strong></p>
+        <label><input type="radio" name="tue-option" value="pickup" checked> Pickup @ <span>Proffen Konferenz</span> (09:30–09:50)</label>
+      </div>
+
+      <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
+        <p><strong>Wednesday:</strong></p>
+        <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
+        <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (13:05–13:50)</label>
+        <div id="location-wed" class="hidden" style="margin-top:.5rem;">
+          <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)">
+        </div>
+      </div>
+
+      <div class="cart-total">Total: <span id="details-total">€0,00</span></div>
+      <button id="to-payment" class="btn">Proceed to Payment</button>
     </div>
+  </div>
 
-    <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
-      <p><strong>Thursday:</strong></p>
-      <label id="radio-pickup"><input type="radio" name="thur-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
-    </div>
+  <div class="modal" id="qr-modal">
+    <div class="modal-content">
+      <span class="close" id="close-qr">×</span>
+      <h2>Scan &amp; Pay</h2>
+      <p id="payment-instructions"></p>
 
-    <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
-      <p><strong>Wednesday:</strong></p>
-      <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
-      <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (13:05–13:50)</label>
-      <div id="location-wed" class="hidden" style="margin-top:.5rem;">
-        <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)" required>
+      <img id="qr-code" src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/3TPCM%20Payconiq.png" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
+
+      <div class="cf-turnstile"
+           data-sitekey="0x4AAAAAABd3MtYix_xppNef"
+           data-theme="light"
+           data-callback="onTurnstileSuccess">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:1rem;">
+        <button id="back-btn" class="btn btn-secondary">Back</button>
+        <button id="confirm-pay" class="btn">Confirm Payment</button>
       </div>
     </div>
-
-    <div class="cart-total">Total: <span id="details-total">€0,00</span></div>
-    <button id="to-payment" class="btn">Proceed to Payment</button>
   </div>
-</div>
 
-<!-- QR Modal -->
-<div class="modal" id="qr-modal">
-  <div class="modal-content">
-    <span class="close" id="close-qr">×</span>
-    <h2>Scan &amp; Pay</h2>
+  <section id="contact" class="contact-section">
+    <h2>Contact Us</h2>
+    <p>Reach out via Microsoft Teams:</p>
+    <p>
+      <strong>
+        <a href="https://teams.microsoft.com/l/chat/0/0?users=BauNo921@school.lu" target="_blank" style="color: #0071e3; text-decoration: underline;">
+          Noémie Baum
+        </a>
+      </strong>
+    </p>
+  </section>
 
-    <!-- PLACEHOLDER for dynamic payment message -->
-    <p id="payment-instructions"></p>
+  <footer class="footer">
+    <p>© 2026 VitaminBoost ALR. All rights reserved.</p>
+  </footer>
 
-    <img id="qr-code" src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/3TPCM%20Payconiq.png" alt="QR Code" style="width: 200px; height: auto; margin: 1rem auto; display: block;">
+  <script type="module">
+    import { initializeCartButtons, renderCart } from './cart.js';
+    import { setupPickupLogic } from './pickup.js';
+    import { initializeOrderLogic } from './order.js';
 
-    <!-- ✅ Turnstile goes here inside modal content -->
-    <div class="cf-turnstile"
-         data-sitekey="0x4AAAAAABd3MtYix_xppNef"
-         data-theme="light"
-         data-callback="onTurnstileSuccess">
-    </div>
+    window.turnstileToken = "";
 
-    <div style="display:flex; justify-content:space-between; margin-top:1rem;">
-      <button id="back-btn" class="btn btn-secondary">Back</button>
-      <button id="confirm-pay" class="btn">Confirm Payment</button>
-    </div>
-  </div>
-</div>
-   
+    window.onTurnstileSuccess = function(token) {
+      window.turnstileToken = token;
+    };
 
-<!-- CONTACT SECTION -->
-<section id="contact" class="contact-section">
-  <h2>Contact Us</h2>
-  <p>Reach out via Microsoft Teams:</p>
-  <p>
-    <strong>
-      <a href="https://teams.microsoft.com/l/chat/0/0?users=BauNo921@school.lu" target="_blank" style="color: #0071e3; text-decoration: underline;">
-        Noémie Baum
-      </a>
-    </strong>
-  </p>
-</section>
+    window.addEventListener('load', function () {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      setTimeout(() => window.scrollTo(0, 0), 10);
 
-<!-- FOOTER -->
-<footer class="footer">
-  <p>© 2025 VitaminBoost ALR. All rights reserved.</p>
-</footer>
- 
+      initializeCartButtons();
+      renderCart();
+      setupPickupLogic();
+      initializeOrderLogic();
+    });
 
-  
- <!-- Loader script -->
-  <script>
-      window.addEventListener('load', function () {
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-
-        // Ensure scroll to top after rendering
-        setTimeout(() => window.scrollTo(0, 0), 10);
-      });
-  </script>
-
-  <script>
-  let turnstileToken = "";
-  function onTurnstileSuccess(token) {
-    turnstileToken = token;
-  }
+    window.addEventListener('click', e => {
+      if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+      }
+    });
   </script>
 </body>
-
-  <script>
-function enforceMinPickupDate() {
-  const now = new Date();
-  const currentDay = now.getDay(); // 0 = Sunday, ..., 2 = Tuesday
-  const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 3) || (currentDay === 3 && currentHour >= 8);
-
-  let minDate = new Date(now);
-  if (afterDeadline) {
-    const daysUntilNextWednesday = ((9 - currentDay) % 7) || 7;
-    minDate.setDate(now.getDate() + daysUntilNextWednesday);
-  } else {
-    const daysUntilThisWednesday = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisWednesday);
-  }
-
-  // Enforce hard-coded minimum date
-  const hardMinDate = new Date('2025-09-17');
-  if (minDate < hardMinDate) {
-    minDate = hardMinDate;
-  }
-
-  const yyyy = minDate.getFullYear();
-  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(minDate.getDate()).padStart(2, '0');
-  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-
-  pickupInput.min = formattedMinDate;
-
-  if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
-    pickupInput.value = pickupInput.min;
-  }
-}
-
-const pickupInput = document.getElementById('pickup-date');
-    enforceMinPickupDate();
-const roleSelect = document.getElementById('role');
-
-function hideAllDayOptions() {
-  document.getElementById('tuesday-options').classList.add('hidden');
-  document.getElementById('wednesday-options').classList.add('hidden');
-}
-
-function isWednesday(dateStr) {
-  return new Date(dateStr).getUTCDay() === 3;
-}
-
-function isTuesday(dateStr) {
-  return new Date(dateStr).getUTCDay() === 4;
-}
-
-
-    // Limit order time
-  enforceMinPickupDate(); // ← ensures proper date
-    
-hideAllDayOptions();
-     enforceMinPickupDate();
-
-function updatePickupOptions() {
-  enforceMinPickupDate();
-  const role = roleSelect.value;
-  const label = document.getElementById('pickup-date-label');
-  const wrapper = document.getElementById('pickup-date-wrapper');
-
-  const day = new Date(pickupInput.value).getUTCDay(); // 2 = Tue, 3 = Wed
-
-  if (!role) {
-    wrapper.classList.add('hidden');
-    return;
-  } else {
-    wrapper.classList.remove('hidden');
-  }
-
-  hideAllDayOptions();
-
-  if (role === "Student") {
-    label.textContent = 'Pickup Date (Wednesdays only)';
-    document.getElementById('radio-delivery').classList.add('hidden');
-
-    if (day !== 3) {
-      pickupInput.setCustomValidity("As a student, you may only select Wednesdays.");
-      pickupInput.reportValidity();
-    } else {
-      pickupInput.setCustomValidity('');
-      document.getElementById('wednesday-options').classList.remove('hidden');
-      document.querySelector('input[name="wed-option"][value="pickup"]').checked = true;
-      document.getElementById('location-wed').classList.add('hidden');
-      document.getElementById('location-wed-input').value = 'Virum Festsall';
-      document.getElementById('pickup-location-label').textContent = 'Virum Festsall';
-    }
-  } else {
-    label.textContent = 'Pickup Date (Wednesdays & Thursdays)';
-    document.getElementById('radio-delivery').classList.remove('hidden');
-    document.getElementById('pickup-location-label').textContent = 'Proffen Konferenz';
-
-    if (day === 4) {
-      document.getElementById('tuesday-options').classList.remove('hidden');
-      pickupInput.setCustomValidity('');
-    } else if (day === 3) {
-      document.getElementById('wednesday-options').classList.remove('hidden');
-      pickupInput.setCustomValidity('');
-
-      // Clear "Virum Festsall" from teachers if left by student
-      const deliveryInput = document.getElementById('location-wed-input');
-      if (deliveryInput.value === 'Virum Festsall') {
-        deliveryInput.value = '';
-      }
-    } else {
-      pickupInput.setCustomValidity('Please choose a Tuesday or Wednesday');
-      pickupInput.reportValidity();
-    }
-  }
-}
-// Listen to changes
-pickupInput.addEventListener('input', updatePickupOptions);
-    
-roleSelect.addEventListener('change', updatePickupOptions);
-    
-    
-
-// ----------------------------
-// 2) Wednesday radio logic
-// ----------------------------
-document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
-  radio.addEventListener('change', () => {
-    const locWed = document.getElementById('location-wed');
-    locWed.classList.toggle('hidden', radio.value !== 'delivery');
-  });
-});
-
-    
-// ----------------------------
-// 3) Cart logic
-// ----------------------------
-const cart = [];
-
-document.querySelectorAll('.btn-add').forEach(btn => {
-  const card = btn.closest('.card');
-  const name = card.querySelector('h3').textContent;
-  const price = parseFloat(
-    card.querySelector('.price').textContent
-      .replace('€', '')
-      .replace(',', '.')
-  );
-  const image = card.querySelector('img').src; // 🖼️ Grab the image source
-  btn.addEventListener('click', () => {
-    cart.push({ name, price, image });
-    renderCart();
-    btn.textContent = "✓ Added";
-    setTimeout(() => btn.textContent = "Add to Cart", 2200);
-  });
-});
-
-    
-// 3.1) Cart Rendering   
-function renderCart() {
-  const container = document.getElementById('cart-items');
-  const orderBtn = document.getElementById('order-btn');
-  container.innerHTML = '';
-
-  const grouped = {};
-  cart.forEach((item) => {
-    if (!grouped[item.name]) {
-      grouped[item.name] = { qty: 0, price: item.price };
-    }
-    grouped[item.name].qty++;
-  });
-
-  let total = 0;
-  Object.entries(grouped).forEach(([name, info]) => {
-    const lineTotal = info.price * info.qty;
-    total += lineTotal;
-
-    const div = document.createElement('div');
-    div.className = 'cart-item';
-    div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:0.5rem;">
-        <button class="btn-qty" data-name="${name}" data-action="decrease">−</button>
-        <span>${info.qty}× ${name}</span>
-        <button class="btn-qty" data-name="${name}" data-action="increase">+</button>
-      </div>
-      <div>
-        <span>€${lineTotal.toFixed(2).replace('.', ',')}</span>
-        <button class="btn-remove" data-name="${name}">🗑️</button>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-
-  document.getElementById('cart-total').textContent =
-    `Total: €${total.toFixed(2).replace('.', ',')}`;
-
-  // Enable or disable the order button
-  orderBtn.disabled = cart.length === 0;
-
-  attachCartHandlers();
-}
-    
-// 3.2) Cart Handlers
-    function attachCartHandlers() {
-  // Adjust quantity
-  document.querySelectorAll('.btn-qty').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const name = btn.getAttribute('data-name');
-      const action = btn.getAttribute('data-action');
-
-      const index = cart.findIndex(item => item.name === name);
-      if (index !== -1) {
-        if (action === 'decrease') {
-          // Remove one instance
-          cart.splice(index, 1);
-        } else if (action === 'increase') {
-          cart.push({ name, price: cart[index].price });
-        }
-        renderCart();
-      }
-    });
-  });
-
-  // Remove all of a smoothie
-  document.querySelectorAll('.btn-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const name = btn.getAttribute('data-name');
-      for (let i = cart.length - 1; i >= 0; i--) {
-        if (cart[i].name === name) {
-          cart.splice(i, 1);
-        }
-      }
-      renderCart();
-    });
-  });
-}
-
-  // 4) Order → Details
-document.getElementById('order-btn').addEventListener('click', () => {
-  if (cart.length === 0) {
-    const btn = document.getElementById('order-btn');
-    const originalText = btn.textContent;
-    btn.textContent = '🛒 Add a smoothie first!';
-    btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.disabled = false;
-    }, 2000);
-    return;
-  }
-
-  // Recalculate minDate dynamically at the time the modal is opened
-  const now = new Date();
-  const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  const currentHour = now.getHours();
-  const afterDeadline = (currentDay > 3) || (currentDay === 3 && currentHour >= 8);
-
-  let minDate = new Date(now);
-
-  if (afterDeadline) {
-    const daysUntilNextWeek = (9 - currentDay) % 7;
-    minDate.setDate(now.getDate() + daysUntilNextWeek);
-  } else {
-    const daysUntilThisWeek = (2 - currentDay + 7) % 7;
-    minDate.setDate(now.getDate() + daysUntilThisWeek);
-  }
-
-  const yyyy = minDate.getFullYear();
-  const mm = String(minDate.getMonth() + 1).padStart(2, '0');
-  const dd = String(minDate.getDate()).padStart(2, '0');
-  const formattedMinDate = `${yyyy}-${mm}-${dd}`;
-
-  // Set date limits
-  pickupInput.min = formattedMinDate;
-  pickupInput.value = formattedMinDate;
-
-  // Re-evaluate role + pickup day logic
-  enforceMinPickupDate();
-  updatePickupOptions();
-
-  // Show modal
-  renderCart();
-  document.getElementById('details-total').textContent =
-    document.getElementById('cart-total').textContent.split(' ')[1];
-  document.getElementById('details-modal').style.display = 'flex';
-});
-    
-  document.getElementById('close-details').addEventListener('click', () => {
-    document.getElementById('details-modal').style.display = 'none';
-  });
-
-  // 5) Details → QR
-  document.getElementById('to-payment').addEventListener('click', () => {
-    const fn = document.getElementById('fname').value.trim();
-    const ln = document.getElementById('lname').value.trim();
-    const em = document.getElementById('email').value.trim();
-    const rl = document.getElementById('role').value;
-    const pd = document.getElementById('pickup-date').value;
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-if (!emailPattern.test(em)) {
-  alert("Please enter a valid email address.");
-  return;
-}
-    if (new Date(pd) < new Date(pickupInput.min)) {
-  return alert("⚠️ That date is no longer available. Please choose a valid pickup day.");
-}
-    if (!fn || !ln || !em || !rl || !pd) {
-      return alert('Please fill all fields and select a pickup date');
-    }
-    document.getElementById('details-modal').style.display = 'none';
-    document.getElementById('payment-instructions').innerHTML = `
-  Please scan the QR code below or 
-  <a href="HTTPS://PAYCONIQ.COM/T/1/653230A42C87810CB8B81D58?A=0&R=3TPCM&D=3TPCM" 
-     target="_blank" 
-     rel="noopener noreferrer" 
-     style="color: #0071e3; font-weight: bold; text-decoration: underline;">
-    click here to pay.
-  </a>
-`;
-
-    document.getElementById('qr-modal').style.display = 'flex';
-  });
-  document.getElementById('close-qr').addEventListener('click', () => {
-    document.getElementById('qr-modal').style.display = 'none';
-  });
-  document.getElementById('back-btn').addEventListener('click', () => {
-    document.getElementById('qr-modal').style.display = 'none';
-    document.getElementById('details-modal').style.display = 'flex';
-  });
-
-  // 6) Confirm & EmailJS
-  document.getElementById('confirm-pay').addEventListener('click', () => {
-    // Build customer details
-    const fn = document.getElementById('fname').value.trim();
-    const ln = document.getElementById('lname').value.trim();
-    const customerName = `${fn} ${ln}`;
-    const customerEmail = document.getElementById('email').value.trim();
-    const customerRole = document.getElementById('role').value;
-    // Reformat pickup date
-    const [Y, M, D] = document.getElementById('pickup-date').value.split('-');
-    const pickupDate = `${D}/${M}/${Y}`;
-    const token = turnstileToken;
-
-    if (!token) {
-      alert("Please complete the human check (Turnstile).");
-      return;
-    }
-
-// Build structured order items array (with images)
-const grouped = {};
-cart.forEach(item => {
-  if (!grouped[item.name]) {
-    grouped[item.name] = {
-      qty: 0,
-      price: item.price,
-      image: item.image
-    };
-  }
-  grouped[item.name].qty++;
-});
-
-const orderItems = Object.entries(grouped).map(([name, info]) => ({
-  name,
-  qty: info.qty,
-  subtotal: (info.qty * info.price).toFixed(2),
-  image: info.image
-}));
-
-// Format the total
-const rawTotal = document.getElementById('cart-total').textContent
-  .replace('Total: €', '')
-  .replace(',', '.');
-const formattedTotal = `${rawTotal}€`;
-
-    // determine which location to include
-    let deliveryLocation = '';
-    const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
-
-    if (wd === 2) {
-      // Tuesday delivery at fixed time
-      const loc = document.getElementById('location-tue').value.trim();
-      deliveryLocation = `14:00–14:20 @ ${loc}`;
-    } else if (wd === 3) {
-  const role = document.getElementById('role').value;
-
-  if (role === 'Student') {
-    deliveryLocation = `09:30–09:50 @ Virum Festsall`;
-  } else {
-    const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
-    if (choice === 'delivery') {
-      const loc = document.getElementById('location-wed-input').value.trim();
-      deliveryLocation = `10:00–10:20 @ ${loc}`;
-    } else {
-      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
-    }
-  }
-}
-
-
-// 6) Save order to Cloudflare Worker before clearing cart
-fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    name: customerName,
-    email: customerEmail,
-    role: customerRole,
-    pickup_date: pickupDate,
-    delivery_location: deliveryLocation,
-    order_items: orderItems,
-    total_amount: formattedTotal,
-    cf_token: turnstileToken
-  })
-})
-.then(res => res.json())
-  .then(data => {
-  if (data.success) {
-    console.log("✅ Order saved with ID:", data.order_id);
-  } else {
-    console.warn("⚠️ Failed to save order.");
-  }
-
-     // 7a) Send admin email
-    /*emailjs.send('service_j0mv0o1', 'template_1728je9', {
-      Name: customerName,
-      email: customerEmail,
-      order_details: orderDetails,
-      total_amount: formattedTotal,
-      pickup_date: pickupDate,
-      user_role: customerRole,
-      delivery_location: deliveryLocation,
-      order_id: data.order_id
-    })
-    .then(r => console.log('Admin email sent', r.status, r.text))
-    .catch(e => console.error('Admin email error', e));
-
-    // 7b) Send customer email
-    emailjs.send('service_j0mv0o1', 'template_u8nwalz', {
-      Name: customerName,
-      email: customerEmail,
-      order_details: orderDetails,
-      total_amount: formattedTotal,
-      pickup_date: pickupDate,
-      pickup_info: `Delivery window chosen`,
-      delivery_location: deliveryLocation,
-      order_id: data.order_id
-    })
-    .then(r => console.log('Customer email sent', r.status, r.text))
-    .catch(e => console.error('Customer email error', e)); */
-
-  // Proceed regardless of success for now
-  cart.length = 0;
-  renderCart();
-
-  const mc = document.querySelector('#qr-modal .modal-content');
-  
-  const returnInstructions = customerRole === "Student"
-    ? "🔁 Return smoothie glasses every Wednesday in front of the Festsall between 09:30–09:50."
-    : `
-    🔁 Return glasses anytime in the return box next to the staircase (outside Proffen Konferenz).
-    <br><br>
-    <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg" 
-         alt="Return Box Location" 
-         style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
-  `;
-  
-  mc.innerHTML = `
-    <h2>Order Confirmed</h2>
-    <p>Thank you! Your order has been confirmed.</p>
-    <p><strong>Pickup Date:</strong> ${pickupDate}</p>
-    <p><strong>Delivery Location:</strong> ${deliveryLocation}</p>
-    <p style="margin-top: 1rem;"><strong>♻️ Please rinse your smoothie glasses before returning them.</strong></p>
-    <br>
-    <p>${returnInstructions}</p>
-    <button id="close-confirm" class="btn">Close</button>
-  `;
-
-  document.getElementById('close-confirm').addEventListener('click', () => {
-    document.getElementById('qr-modal').style.display = 'none';
-    location.reload();
-  });
-})
-.catch(error => {
-  console.error("❌ Error sending order to server:", error);
-  alert("There was an error saving your order. Please try again.");
-});
-  });
-
-  // 8) Dismiss modals on outside click
-  window.addEventListener('click', e => {
-    if (e.target.classList.contains('modal')) {
-      e.target.style.display = 'none';
-    }
-  });
-    
-</script>
+</html>
