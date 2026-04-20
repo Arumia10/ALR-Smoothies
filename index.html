@@ -198,8 +198,23 @@
 
       <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
         <p><strong>Wednesday:</strong></p>
-        <label>
-          <input type="radio" name="pickup-option" value="fridge-wed" checked>
+
+        <label id="radio-pickup" style="display:block; margin-bottom:0.4rem;">
+          <input type="radio" name="wed-option" value="pickup">
+          Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)
+        </label>
+      
+        <label id="radio-delivery" style="display:block; margin-bottom:0.4rem;">
+          <input type="radio" name="wed-option" value="delivery">
+          Delivery (13:05–13:50)
+        </label>
+      
+        <div id="location-wed" class="hidden" style="margin-top:.5rem; margin-bottom:0.5rem;">
+          <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)">
+        </div>
+      
+        <label id="radio-fridge" style="display:block;">
+          <input type="radio" name="wed-option" value="fridge">
           Pickup from the fridge (outside the Proffenkonferenz)
         </label>
       </div>
