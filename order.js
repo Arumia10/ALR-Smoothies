@@ -24,7 +24,7 @@ export function initializeOrderLogic() {
 
     let minDate = new Date(now);
     if (afterDeadline) {
-      const daysUntilNextTuesday = (9 - currentDay) % 7;
+      const daysUntilNextTuesday = (9 - currentDay) % 7 || 7;
       minDate.setDate(now.getDate() + daysUntilNextTuesday);
     } else {
       const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
@@ -44,7 +44,8 @@ export function initializeOrderLogic() {
 
     renderCart();
     document.getElementById('details-total').textContent =
-      document.getElementById('cart-total').textContent.split(' ')[1];
+      document.getElementById('cart-total').textContent.replace('Total: ', '');
+
     document.getElementById('details-modal').style.display = 'flex';
   });
 
@@ -64,19 +65,23 @@ export function initializeOrderLogic() {
       alert("Please enter a valid email address.");
       return;
     }
+
     if (new Date(pd) < new Date(pickupInput.min)) {
-      return alert("⚠️ That date is no longer available. Please choose a valid pickup day.");
+      alert("⚠️ That date is no longer available. Please choose a valid pickup day.");
+      return;
     }
+
     if (!fn || !ln || !em || !rl || !pd) {
-      return alert('Please fill all fields and select a pickup date');
+      alert('Please fill all fields and select a pickup date');
+      return;
     }
 
     document.getElementById('details-modal').style.display = 'none';
     document.getElementById('payment-instructions').innerHTML = `
-      Please scan the QR code below or 
-      <a href="https://payconiq.com/t/1/653230A42C87810CB8B81D58?A=0&R=4TPCM%20Mini-Entreprise%20&D=4TPCM%20Mini-Entreprise%20" 
-         target="_blank" 
-         rel="noopener noreferrer" 
+      Please scan the QR code below or
+      <a href="https://payconiq.com/t/1/653230A42C87810CB8B81D58?A=0&R=4TPCM%20Mini-Entreprise%20&D=4TPCM%20Mini-Entreprise%20"
+         target="_blank"
+         rel="noopener noreferrer"
          style="color: #0071e3; font-weight: bold; text-decoration: underline;">
         click here to pay.
       </a>.
@@ -92,5 +97,127 @@ export function initializeOrderLogic() {
   document.getElementById('back-btn').addEventListener('click', () => {
     document.getElementById('qr-modal').style.display = 'none';
     document.getElementById('details-modal').style.display = 'flex';
+  });
+
+  document.getElementById('confirm-pay').addEventListener('click', async () => {
+    const fn = document.getElementById('fname').value.trim();
+    const ln = document.getElementById('lname').value.trim();
+    const customerName = `${fn} ${ln}`;
+    const customerEmail = document.getElementById('email').value.trim();
+    const customerRole = document.getElementById('role').value;
+    const [Y, M, D] = document.getElementById('pickup-date').value.split('-');
+    const pickupDate = `${D}/${M}/${Y}`;
+    const token = window.turnstileToken;
+
+    if (!token) {
+      alert("Please complete the human check (Turnstile).");
+      return;
+    }
+
+    const grouped = {};
+    cart.forEach(item => {
+      if (!grouped[item.name]) {
+        grouped[item.name] = {
+          qty: 0,
+          price: item.price,
+          image: item.image
+        };
+      }
+      grouped[item.name].qty++;
+    });
+
+    const orderItems = Object.entries(grouped).map(([name, info]) => ({
+      name,
+      qty: info.qty,
+      subtotal: (info.qty * info.price).toFixed(2),
+      image: info.image
+    }));
+
+    const rawTotal = document.getElementById('cart-total').textContent
+      .replace('Total: €', '')
+      .replace(',', '.');
+
+    const formattedTotal = rawTotal;
+
+    let deliveryLocation = '';
+    const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
+
+    if (wd === 2) {
+      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
+    } else if (wd === 3) {
+      if (customerRole === 'Student') {
+        deliveryLocation = `09:30–09:50 @ Virum Festsall`;
+      } else {
+        const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
+        if (choice === 'delivery') {
+          const loc = document.getElementById('location-wed-input').value.trim();
+          if (!loc) {
+            alert("Please enter the delivery location.");
+            return;
+          }
+          deliveryLocation = `13:05–13:50 @ ${loc}`;
+        } else {
+          deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
+        }
+      }
+    }
+
+    try {
+      const res = await fetch("https://vitaminboostalr.9fhw2ps22t.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: customerName,
+          email: customerEmail,
+          role: customerRole,
+          pickup_date: pickupDate,
+          delivery_location: deliveryLocation,
+          order_items: orderItems,
+          total_amount: formattedTotal,
+          cf_token: token
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Order submission failed");
+      }
+
+      cart.length = 0;
+      renderCart();
+
+      const mc = document.querySelector('#qr-modal .modal-content');
+
+      const returnInstructions = customerRole === "Student"
+        ? "🔁 Return smoothie glasses every Wednesday in front of the Festsall between 09:30–09:50."
+        : `
+          🔁 Return glasses anytime in the return box next to the staircase (outside Proffen Konferenz).
+          <br><br>
+          <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg"
+               alt="Return Box Location"
+               style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
+        `;
+
+      mc.innerHTML = `
+        <h2>Order Confirmed</h2>
+        <p>Thank you! Your order has been confirmed.</p>
+        <p><strong>Order #:</strong> ${data.order_id}</p>
+        <p><strong>Pickup Date:</strong> ${pickupDate}</p>
+        <p><strong>Delivery Location:</strong> ${deliveryLocation}</p>
+        <p style="margin-top: 1rem;"><strong>♻️ Please rinse your smoothie glasses before returning them.</strong></p>
+        <br>
+        <p>${returnInstructions}</p>
+        <button id="close-confirm" class="btn">Close</button>
+      `;
+
+      document.getElementById('close-confirm').addEventListener('click', () => {
+        document.getElementById('qr-modal').style.display = 'none';
+        location.reload();
+      });
+    } catch (error) {
+      console.error("❌ Error sending order to server:", error);
+      alert("There was an error saving your order. Please try again.");
+    }
   });
 }
