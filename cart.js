@@ -1,8 +1,4 @@
-// ----------------------------
-// 3) Cart logic
-// ----------------------------
 export const cart = [];
-
 
 export function initializeCartButtons() {
   document.querySelectorAll('.btn-add').forEach(btn => {
@@ -13,8 +9,10 @@ export function initializeCartButtons() {
         .replace('€', '')
         .replace(',', '.')
     );
+    const image = card.querySelector('img').src;
+
     btn.addEventListener('click', () => {
-      cart.push({ name, price });
+      cart.push({ name, price, image });
       renderCart();
       btn.textContent = "✓ Added";
       setTimeout(() => btn.textContent = "Add to Cart", 2200);
@@ -22,18 +20,19 @@ export function initializeCartButtons() {
   });
 }
 
-    
-// 3.1) Cart Rendering   
-
 export function renderCart() {
   const container = document.getElementById('cart-items');
   const orderBtn = document.getElementById('order-btn');
   container.innerHTML = '';
 
   const grouped = {};
-  cart.forEach((item) => {
+  cart.forEach(item => {
     if (!grouped[item.name]) {
-      grouped[item.name] = { qty: 0, price: item.price };
+      grouped[item.name] = {
+        qty: 0,
+        price: item.price,
+        image: item.image
+      };
     }
     grouped[item.name].qty++;
   });
@@ -62,15 +61,12 @@ export function renderCart() {
   document.getElementById('cart-total').textContent =
     `Total: €${total.toFixed(2).replace('.', ',')}`;
 
-  // Enable or disable the order button
   orderBtn.disabled = cart.length === 0;
 
   attachCartHandlers();
 }
-    
-// 3.2) Cart Handlers
+
 function attachCartHandlers() {
-  // Adjust quantity
   document.querySelectorAll('.btn-qty').forEach(btn => {
     btn.addEventListener('click', () => {
       const name = btn.getAttribute('data-name');
@@ -79,17 +75,19 @@ function attachCartHandlers() {
       const index = cart.findIndex(item => item.name === name);
       if (index !== -1) {
         if (action === 'decrease') {
-          // Remove one instance
           cart.splice(index, 1);
         } else if (action === 'increase') {
-          cart.push({ name, price: cart[index].price });
+          cart.push({
+            name,
+            price: cart[index].price,
+            image: cart[index].image
+          });
         }
         renderCart();
       }
     });
   });
 
-  // Remove all of a smoothie
   document.querySelectorAll('.btn-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const name = btn.getAttribute('data-name');
