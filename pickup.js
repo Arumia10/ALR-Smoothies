@@ -29,41 +29,51 @@ export function enforceMinPickupDate() {
   }
 }
 
+function hideById(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('hidden');
+}
+
+function showById(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('hidden');
+}
+
 function hideAllDayOptions() {
-  document.getElementById('wednesday-options').classList.add('hidden');
-  document.getElementById('thursday-options').classList.add('hidden');
-  document.getElementById('friday-options').classList.add('hidden');
+  hideById('wednesday-options');
+  hideById('thursday-options');
+  hideById('friday-options');
 }
 
 export function updatePickupOptions() {
   const pickupInput = document.getElementById('pickup-date');
   const roleSelect = document.getElementById('role');
+  const label = document.getElementById('pickup-date-label');
+  const wrapper = document.getElementById('pickup-date-wrapper');
+
   enforceMinPickupDate();
 
   const role = roleSelect.value;
-  const label = document.getElementById('pickup-date-label');
-  const wrapper = document.getElementById('pickup-date-wrapper');
   const day = new Date(pickupInput.value).getUTCDay(); // 3=Wed, 4=Thu, 5=Fri
 
   if (!role) {
     wrapper.classList.add('hidden');
     return;
-  } else {
-    wrapper.classList.remove('hidden');
   }
 
+  wrapper.classList.remove('hidden');
   hideAllDayOptions();
 
   label.textContent = 'Pickup Date (Wednesday, Thursday or Friday)';
 
   if (day === 3) {
-    document.getElementById('wednesday-options').classList.remove('hidden');
+    showById('wednesday-options');
     pickupInput.setCustomValidity('');
   } else if (day === 4) {
-    document.getElementById('thursday-options').classList.remove('hidden');
+    showById('thursday-options');
     pickupInput.setCustomValidity('');
   } else if (day === 5) {
-    document.getElementById('friday-options').classList.remove('hidden');
+    showById('friday-options');
     pickupInput.setCustomValidity('');
   } else {
     pickupInput.setCustomValidity('Please choose a Wednesday, Thursday or Friday');
