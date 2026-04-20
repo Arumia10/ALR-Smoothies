@@ -38,10 +38,47 @@ function showById(id) {
   if (el) el.classList.remove('hidden');
 }
 
+function setDisplay(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = value;
+}
+
 function hideAllDayOptions() {
   hideById('wednesday-options');
   hideById('thursday-options');
   hideById('friday-options');
+}
+
+function configureWednesdayOptionsForStudent() {
+  setDisplay('radio-pickup', 'none');
+  setDisplay('radio-delivery', 'none');
+  setDisplay('radio-fridge', 'none');
+  setDisplay('radio-student-pickup', 'block');
+
+  const locationWed = document.getElementById('location-wed');
+  if (locationWed) locationWed.classList.add('hidden');
+
+  const studentRadio = document.querySelector('input[name="wed-option"][value="student-pickup"]');
+  if (studentRadio) studentRadio.checked = true;
+}
+
+function configureWednesdayOptionsForTeacherOther() {
+  setDisplay('radio-pickup', 'block');
+  setDisplay('radio-delivery', 'block');
+  setDisplay('radio-fridge', 'block');
+  setDisplay('radio-student-pickup', 'none');
+
+  const checked = document.querySelector('input[name="wed-option"]:checked');
+  if (!checked || checked.value === 'student-pickup') {
+    const fridgeRadio = document.querySelector('input[name="wed-option"][value="fridge"]');
+    if (fridgeRadio) fridgeRadio.checked = true;
+  }
+
+  const selected = document.querySelector('input[name="wed-option"]:checked')?.value;
+  const locationWed = document.getElementById('location-wed');
+  if (locationWed) {
+    locationWed.classList.toggle('hidden', selected !== 'delivery');
+  }
 }
 
 export function updatePickupOptions() {
@@ -49,12 +86,11 @@ export function updatePickupOptions() {
   const roleSelect = document.getElementById('role');
   const label = document.getElementById('pickup-date-label');
   const wrapper = document.getElementById('pickup-date-wrapper');
-  const locationWed = document.getElementById('location-wed');
 
   enforceMinPickupDate();
 
   const role = roleSelect.value;
-  const day = new Date(pickupInput.value).getUTCDay(); // 3=Wed, 4=Thu, 5=Fri
+  const day = new Date(pickupInput.value).getUTCDay();
 
   if (!role) {
     wrapper.classList.add('hidden');
@@ -69,17 +105,8 @@ export function updatePickupOptions() {
 
     if (day === 3) {
       showById('wednesday-options');
+      configureWednesdayOptionsForStudent();
       pickupInput.setCustomValidity('');
-
-      hideById('radio-pickup');
-      hideById('radio-delivery');
-      hideById('radio-fridge');
-      showById('radio-student-pickup');
-
-      if (locationWed) locationWed.classList.add('hidden');
-
-      const studentRadio = document.querySelector('input[name="wed-option"][value="student-pickup"]');
-      if (studentRadio) studentRadio.checked = true;
     } else {
       pickupInput.setCustomValidity('As a student, you may only select Wednesday.');
       pickupInput.reportValidity();
@@ -92,33 +119,17 @@ export function updatePickupOptions() {
 
   if (day === 3) {
     showById('wednesday-options');
+    configureWednesdayOptionsForTeacherOther();
     pickupInput.setCustomValidity('');
-
-    showById('radio-pickup');
-    showById('radio-delivery');
-    showById('radio-fridge');
-    hideById('radio-student-pickup');
-
-    const checked = document.querySelector('input[name="wed-option"]:checked');
-    if (!checked) {
-      const fridgeRadio = document.querySelector('input[name="wed-option"][value="fridge"]');
-      if (fridgeRadio) fridgeRadio.checked = true;
-    }
-
-    const selected = document.querySelector('input[name="wed-option"]:checked')?.value;
-    if (locationWed) locationWed.classList.toggle('hidden', selected !== 'delivery');
   } else if (day === 4) {
     showById('thursday-options');
     pickupInput.setCustomValidity('');
-    if (locationWed) locationWed.classList.add('hidden');
   } else if (day === 5) {
     showById('friday-options');
     pickupInput.setCustomValidity('');
-    if (locationWed) locationWed.classList.add('hidden');
   } else {
     pickupInput.setCustomValidity('Please choose a Wednesday, Thursday or Friday');
     pickupInput.reportValidity();
-    if (locationWed) locationWed.classList.add('hidden');
   }
 }
 
@@ -134,9 +145,9 @@ export function setupPickupLogic() {
 
   document.querySelectorAll('input[name="wed-option"]').forEach(radio => {
     radio.addEventListener('change', () => {
-      const locWed = document.getElementById('location-wed');
-      if (locWed) {
-        locWed.classList.toggle('hidden', radio.value !== 'delivery');
+      const role = document.getElementById('role').value;
+      if (role !== 'Student') {
+        configureWednesdayOptionsForTeacherOther();
       }
     });
   });
