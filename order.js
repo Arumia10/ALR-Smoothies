@@ -20,15 +20,16 @@ export function initializeOrderLogic() {
     const now = new Date();
     const currentDay = now.getDay();
     const currentHour = now.getHours();
-    const afterDeadline = (currentDay > 2) || (currentDay === 2 && currentHour >= 14);
+    const afterDeadline = (currentDay > 3) || (currentDay === 3 && currentHour >= 8);
 
     let minDate = new Date(now);
+
     if (afterDeadline) {
-      const daysUntilNextTuesday = (9 - currentDay) % 7 || 7;
-      minDate.setDate(now.getDate() + daysUntilNextTuesday);
+      const daysUntilNextWednesday = ((10 - currentDay) % 7) || 7;
+      minDate.setDate(now.getDate() + daysUntilNextWednesday);
     } else {
-      const daysUntilThisTuesday = (2 - currentDay + 7) % 7;
-      minDate.setDate(now.getDate() + daysUntilThisTuesday);
+      const daysUntilThisWednesday = (3 - currentDay + 7) % 7;
+      minDate.setDate(now.getDate() + daysUntilThisWednesday);
     }
 
     const yyyy = minDate.getFullYear();
@@ -142,24 +143,12 @@ export function initializeOrderLogic() {
     let deliveryLocation = '';
     const wd = new Date(document.getElementById('pickup-date').value).getUTCDay();
 
-    if (wd === 2) {
-      deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
-    } else if (wd === 3) {
-      if (customerRole === 'Student') {
-        deliveryLocation = `09:30–09:50 @ Virum Festsall`;
-      } else {
-        const choice = document.querySelector('input[name="wed-option"]:checked')?.value;
-        if (choice === 'delivery') {
-          const loc = document.getElementById('location-wed-input').value.trim();
-          if (!loc) {
-            alert("Please enter the delivery location.");
-            return;
-          }
-          deliveryLocation = `13:05–13:50 @ ${loc}`;
-        } else {
-          deliveryLocation = `09:30–09:50 @ Proffen Konferenz`;
-        }
-      }
+    if (wd === 3) {
+      deliveryLocation = `Pickup from the fridge (outside the Proffenkonferenz)`;
+    } else if (wd === 4) {
+      deliveryLocation = `Pickup from the fridge (outside the Proffenkonferenz)`;
+    } else if (wd === 5) {
+      deliveryLocation = `Pickup from the fridge (outside the Proffenkonferenz)`;
     }
 
     try {
@@ -189,22 +178,20 @@ export function initializeOrderLogic() {
 
       const mc = document.querySelector('#qr-modal .modal-content');
 
-      const returnInstructions = customerRole === "Student"
-        ? "🔁 Return smoothie glasses every Wednesday in front of the Festsall between 09:30–09:50."
-        : `
-          🔁 Return glasses anytime in the return box next to the staircase (outside Proffen Konferenz).
-          <br><br>
-          <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg"
-               alt="Return Box Location"
-               style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
-        `;
+      const returnInstructions = `
+        🔁 Please return the smoothie glasses in the return box outside the Proffenkonferenz.
+        <br><br>
+        <img src="https://raw.githubusercontent.com/Arumia10/ALR-Smoothies/refs/heads/main/Pictures/Retour%20Smoothies.jpeg"
+             alt="Return Box Location"
+             style="max-width:100%; border-radius:8px; margin-top:0.5rem;" />
+      `;
 
       mc.innerHTML = `
         <h2>Order Confirmed</h2>
         <p>Thank you! Your order has been confirmed.</p>
         <p><strong>Order #:</strong> ${data.order_id}</p>
         <p><strong>Pickup Date:</strong> ${pickupDate}</p>
-        <p><strong>Delivery Location:</strong> ${deliveryLocation}</p>
+        <p><strong>Pickup Method:</strong> ${deliveryLocation}</p>
         <p style="margin-top: 1rem;"><strong>♻️ Please rinse your smoothie glasses before returning them.</strong></p>
         <br>
         <p>${returnInstructions}</p>
