@@ -21,7 +21,7 @@ export function enforceMinPickupDate() {
 
   pickupInput.min = formattedMinDate;
 
-  if (new Date(pickupInput.value) < new Date(pickupInput.min)) {
+  if (pickupInput.value && new Date(pickupInput.value) < new Date(pickupInput.min)) {
     pickupInput.value = pickupInput.min;
   }
 }
@@ -94,6 +94,7 @@ export function setupPickupLogic() {
 
   enforceMinPickupDate();
   hideAllDayOptions();
+
   pickupInput.addEventListener('input', updatePickupOptions);
   roleSelect.addEventListener('change', updatePickupOptions);
 
