@@ -318,6 +318,10 @@ section { padding:2rem 1rem; }
   margin-left: 0.25rem;
 }
 
+.pickup-choice {
+  display: block;
+}
+
 .btn-qty:hover,
 .btn-remove:hover {
   background: #e2e2e2;
