@@ -191,22 +191,33 @@
         <label for="pickup-date" id="pickup-date-label">Pickup Date</label>
         <input type="date" id="pickup-date" required>
         <p style="font-size:0.85rem; color:#777; margin-top: 0.25rem;">
-          ⚠️ Orders after Tuesday 14:00 are for next week
+          ⚠️ Orders after Wednesday 08:00 are for next week
         </p>
       </div>
 
-      <div id="tuesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
-        <p><strong>Tuesday:</strong></p>
-        <label><input type="radio" name="tue-option" value="pickup" checked> Pickup @ <span>Proffen Konferenz</span> (09:30–09:50)</label>
-      </div>
 
       <div id="wednesday-options" class="hidden" style="margin-top:1rem; text-align:left;">
         <p><strong>Wednesday:</strong></p>
-        <label id="radio-pickup"><input type="radio" name="wed-option" value="pickup"> Pickup @ <span id="pickup-location-label">Proffen Konferenz</span> (09:30–09:50)</label>
-        <label id="radio-delivery"><input type="radio" name="wed-option" value="delivery"> Delivery (13:05–13:50)</label>
-        <div id="location-wed" class="hidden" style="margin-top:.5rem;">
-          <input type="text" id="location-wed-input" placeholder="Delivery Location (e.g. C104)">
-        </div>
+        <label>
+          <input type="radio" name="pickup-option" value="fridge-wed" checked>
+          Pickup from the fridge (outside the Proffenkonferenz)
+        </label>
+      </div>
+
+      <div id="thursday-options" class="hidden" style="margin-top:1rem; text-align:left;">
+        <p><strong>Thursday:</strong></p>
+        <label>
+          <input type="radio" name="pickup-option" value="fridge-thu" checked>
+          Pickup from the fridge (outside the Proffenkonferenz)
+        </label>
+      </div>
+
+      <div id="friday-options" class="hidden" style="margin-top:1rem; text-align:left;">
+        <p><strong>Friday:</strong></p>
+        <label>
+          <input type="radio" name="pickup-option" value="fridge-fri" checked>
+          Pickup from the fridge (outside the Proffenkonferenz)
+        </label>
       </div>
 
       <div class="cart-total">Total: <span id="details-total">€0,00</span></div>
