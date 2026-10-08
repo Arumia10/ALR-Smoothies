@@ -137,6 +137,8 @@ function renderReview(data) {
       )}<hr><div class="total-row"><span>Total</span><strong>${money(total())}</strong></div><p>Retrait à l’école sans frais supplémentaires.</p><hr><h3>${escapeHTML(data.firstName)} ${escapeHTML(data.lastName)}</h3><p>${escapeHTML(data.email)}</p><p><strong>${formatDate(data.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p>`;
 }
 function openCheckout() {
+  stopTurnstile();
+  if (service?.turnstileSiteKey) loadTurnstile().catch(() => {});
   bag.close();
   form.reset();
   $("#details-step").hidden = false;
@@ -152,6 +154,7 @@ function openCheckout() {
 }
 function showDetails() {
   if (submitting) return;
+  stopTurnstile();
   $("#details-step").hidden = false;
   $("#review-step").hidden = true;
   $("#step-one").classList.add("active");
@@ -160,29 +163,44 @@ function showDetails() {
 }
 let turnstileToken = "",
   turnstileWidget = null,
-  turnstileLoading = null;
+  turnstileLoading = null,
+  securityRun = 0,
+  securityTimer = null;
+const securityVisible = () => checkout.open && !form.hidden && !$("#review-step").hidden;
+$("#security-retry").hidden = true;
+function stopTurnstile() {
+  securityRun++;
+  clearTimeout(securityTimer);
+  securityTimer = null;
+  turnstileToken = "";
+  if (turnstileWidget !== null && window.turnstile) {
+    window.turnstile.remove(turnstileWidget);
+    turnstileWidget = null;
+  }
+}
 function loadTurnstile() {
-  if (window.turnstile) return Promise.resolve();
   if (turnstileLoading) return turnstileLoading;
   turnstileLoading = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    const timer = setTimeout(() => {
-      script.remove();
-      reject(new Error("timeout"));
-    }, 12000);
-    script.src =
-      "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    let script, settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (error) { script?.remove(); reject(error); }
+      else resolve();
+    };
+    const ready = () => {
+      if (!window.turnstile) return finish(new Error("unavailable"));
+      try { window.turnstile.ready(() => finish()); }
+      catch (error) { finish(error); }
+    };
+    const timer = setTimeout(() => finish(new Error("timeout")), 12000);
+    if (window.turnstile) return ready();
+    script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     script.async = true;
-    script.onload = () => {
-      clearTimeout(timer);
-      if (window.turnstile) window.turnstile.ready(resolve);
-      else reject(new Error("unavailable"));
-    };
-    script.onerror = () => {
-      clearTimeout(timer);
-      script.remove();
-      reject(new Error("unavailable"));
-    };
+    script.onload = ready;
+    script.onerror = () => finish(new Error("unavailable"));
     document.head.append(script);
   }).catch((error) => {
     turnstileLoading = null;
@@ -190,46 +208,83 @@ function loadTurnstile() {
   });
   return turnstileLoading;
 }
-async function prepareTurnstile() {
-  if (!service?.turnstileSiteKey) return;
+async function prepareTurnstile(attempt = 0) {
+  if (submitting || !service?.turnstileSiteKey || !securityVisible()) return;
+  stopTurnstile();
+  const run = securityRun;
+  const current = () => run === securityRun && securityVisible();
+  let recovering = false;
   $("#security-check").hidden = false;
+  $("#security-retry").hidden = true;
   $("#security-message").textContent = "Vérification de sécurité…";
-  turnstileToken = "";
   resetSubmit();
+  const recover = () => {
+    if (!current() || submitting || recovering) return;
+    recovering = true;
+    clearTimeout(securityTimer);
+    turnstileToken = "";
+    resetSubmit();
+    if (attempt < 1) {
+      $("#security-message").textContent = "Vérification en cours de relance…";
+      securityTimer = setTimeout(() => {
+        if (current()) prepareTurnstile(attempt + 1);
+      }, 1000);
+    } else {
+      $("#security-message").textContent = "Vérification indisponible. Vérifiez votre connexion, puis réessayez.";
+      $("#security-retry").hidden = false;
+    }
+  };
+  const waiting = () => {
+    if (!current()) return;
+    turnstileToken = "";
+    $("#security-message").textContent = "Vérification de sécurité…";
+    $("#security-retry").hidden = true;
+    if (!submitting) resetSubmit();
+    clearTimeout(securityTimer);
+    securityTimer = setTimeout(recover, 20000);
+  };
   try {
     await loadTurnstile();
-    if (turnstileWidget !== null) window.turnstile.remove(turnstileWidget);
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    if (!current()) return;
+    waiting();
     turnstileWidget = window.turnstile.render("#turnstile-widget", {
       sitekey: service.turnstileSiteKey,
       action: "order",
       language: "fr",
       size: "flexible",
+      execution: "render",
+      retry: "never",
+      "refresh-expired": "auto",
+      "refresh-timeout": "auto",
       callback: (token) => {
+        if (!current()) return;
+        clearTimeout(securityTimer);
+        recovering = false;
+        attempt = 0;
         turnstileToken = token;
         $("#security-message").textContent = "Vérification effectuée.";
+        $("#security-retry").hidden = true;
         if (!submitting) resetSubmit();
       },
-      "expired-callback": () => {
-        turnstileToken = "";
-        $("#security-message").textContent =
-          "La vérification a expiré. Relancez-la avant de valider.";
-        if (!submitting) resetSubmit();
+      "expired-callback": waiting,
+      "timeout-callback": waiting,
+      "before-interactive-callback": () => {
+        if (!current()) return;
+        clearTimeout(securityTimer);
+        $("#security-message").textContent = "Veuillez effectuer la vérification ci-dessus.";
       },
-      "error-callback": () => {
-        turnstileToken = "";
-        $("#security-message").textContent =
-          "Vérification indisponible. Vérifiez votre connexion et réessayez.";
-        if (!submitting) resetSubmit();
+      "after-interactive-callback": () => {
+        if (current() && !turnstileToken) waiting();
       },
+      "error-callback": () => { recover(); return true; },
     });
-  } catch {
-    $("#security-message").textContent =
-      "Vérification indisponible. Autorisez Cloudflare Turnstile dans votre navigateur puis réessayez.";
-  }
+  } catch { recover(); }
 }
 $("#security-retry").addEventListener("click", () => {
   if (!submitting) prepareTurnstile();
 });
+checkout.addEventListener("close", stopTurnstile);
 function resetSubmit() {
   submitting = false;
   $("#place-order").disabled = Boolean(
@@ -289,6 +344,7 @@ async function submitOrder() {
         result.error ||
           "Votre commande n’a pas pu être enregistrée. Veuillez réessayer.",
       );
+    stopTurnstile();
     form.hidden = true;
     $(".checkout-steps").hidden = true;
     $("#order-success").innerHTML =
@@ -320,12 +376,10 @@ async function submitOrder() {
           ? "Connexion impossible. Vérifiez votre connexion et réessayez."
           : e.message;
     error.hidden = false;
-    if (service?.turnstileSiteKey) {
-      turnstileToken = "";
-      if (turnstileWidget !== null) window.turnstile.reset(turnstileWidget);
-    }
+    stopTurnstile();
   } finally {
     resetSubmit();
+    if (securityVisible() && service?.turnstileSiteKey) prepareTurnstile();
   }
 }
 $(".filters").addEventListener("click", (e) => {
@@ -455,6 +509,10 @@ async function connect() {
     if (!response.ok) throw new Error();
     service = await response.json();
     products = service.products;
+    if (service.turnstileSiteKey) {
+      loadTurnstile().catch(() => {});
+      if (securityVisible()) prepareTurnstile();
+    }
     const prices = products
         .filter((p) => p.category !== "breakfast")
         .map((p) => p.price),
