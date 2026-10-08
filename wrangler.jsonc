@@ -6,6 +6,12 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
+  "routes": [
+  {
+    "pattern": "vitaminboostalr.com",
+    "custom_domain": true
+  }
+],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
@@ -22,11 +28,12 @@
     },
   ],
   "vars": {
-    "ORDER_MODE": "preview",
+    "ORDER_MODE": "live",
     "ORDERS_OPEN": "true",
     "WEEKLY_CAPACITY": "120",
     "CLOSED_DATES": "",
-    "LIVE_SETUP_CONFIRMED": "false",
+    "LIVE_SETUP_CONFIRMED": "true",
+    "PUBLIC_ORIGIN": "https://vitaminboostalr.com",
     "TURNSTILE_SITE_KEY": "0x4AAAAAABd3MtYix_xppNef",
     "EMAIL_FROM": "VitaminBoost ALR <order@vitaminboostalr.com>",
     "ORDER_NOTIFICATION_EMAIL": "order@vitaminboostalr.com",
