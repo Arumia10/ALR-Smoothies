@@ -124,5 +124,19 @@
       </section>
     </main>
     <div id="admin-toast" role="status" class="toast"></div>
+    <dialog id="cancel-dialog" class="cancel-dialog" aria-labelledby="cancel-title">
+      <form id="cancel-form">
+        <p class="eyebrow">ANNULATION</p>
+        <h2 id="cancel-title">Annuler la commande ?</h2>
+        <p id="cancel-customer"></p>
+        <label for="cancel-reason">Message au client <span class="form-note">(facultatif)</span></label>
+        <textarea id="cancel-reason" name="reason" rows="5" maxlength="1000" placeholder="Expliquez pourquoi la commande est annulée…" aria-describedby="cancel-help"></textarea>
+        <p id="cancel-help" class="form-note">Votre message sera inclus dans l’e-mail d’annulation. Sans message, le client recevra une notification simple. Maximum : 1 000 caractères.</p>
+        <p id="cancel-preview" class="form-note" hidden>Mode aperçu : aucun e-mail ne sera envoyé.</p>
+        <p id="cancel-paid" class="form-note" hidden>Cette commande est déjà payée. Le remboursement doit être géré séparément.</p>
+        <p id="cancel-error" class="error" role="alert" hidden></p>
+        <div class="cancel-dialog-actions"><button type="button" id="cancel-back" class="button secondary">Revenir</button><button type="submit" class="button primary">Confirmer l’annulation</button></div>
+      </form>
+    </dialog>
   </body>
 </html>

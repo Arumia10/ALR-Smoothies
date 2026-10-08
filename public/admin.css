@@ -237,3 +237,9 @@
     margin-top: 10px;
   }
 }
+
+.cancel-dialog { width: 560px; max-width: calc(100vw - 24px); border-radius: 16px; padding: 28px; }
+.cancel-dialog h2 { font-size: clamp(25px, 5vw, 34px); }
+.cancel-dialog textarea { display: block; width: 100%; box-sizing: border-box; resize: vertical; margin-top: 10px; padding: 14px; border: 1px solid #a5b4a5; border-radius: 10px; background: #fff; color: var(--green); font: inherit; }
+.cancel-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.cancellation-reason { white-space: pre-wrap; overflow-wrap: anywhere; }

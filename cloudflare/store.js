@@ -1,8 +1,8 @@
 import { randomBytes, createHash } from "node:crypto";
 import { fulfillmentOptions } from "../public/schedule.js";
-import { buildConfirmation } from "./integrations.js";
+import { buildConfirmation, buildCancellation } from "./integrations.js";
 import { PRODUCTS } from "../public/catalog.js";
-import { AppError, validateOrder, productionWeek } from "../lib/order-rules.js";
+import { AppError, validateOrder, productionWeek, cancellationReason } from "../lib/order-rules.js";
 
 export const digest = (value) =>
   createHash("sha256").update(value).digest("hex");
@@ -171,16 +171,16 @@ export function createD1Store(db, demo = true) {
   async function list() {
     const { results } = await db
       .prepare(
-        "SELECT id,first_name,last_name,email,role,date,fulfillment,room,total,quantity,items,status,payment_status,demo,created_at,(SELECT status FROM vb_email_outbox WHERE order_id=vb_orders.id) AS email_status FROM vb_orders WHERE demo=? ORDER BY created_at DESC LIMIT 1000",
+        "SELECT id,first_name,last_name,email,role,date,fulfillment,room,total,quantity,items,status,payment_status,demo,created_at,(SELECT status FROM vb_email_outbox WHERE order_id=vb_orders.id) AS email_status,(SELECT reason FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_reason,(SELECT CASE WHEN payload IS NOT NULL THEN status END FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_email_status FROM vb_orders WHERE demo=? ORDER BY created_at DESC LIMIT 1000",
       )
       .bind(mode)
       .all();
     return results.map((o) => ({ ...o, items: JSON.parse(o.items) }));
   }
-  async function updateOrder(id, patch) {
+  async function updateOrder(id, patch, emailConfig) {
     const order = await db
       .prepare(
-        "SELECT status,payment_status FROM vb_orders WHERE id=? AND demo=?",
+        "SELECT * FROM vb_orders WHERE id=? AND demo=?",
       )
       .bind(id, mode)
       .first();
@@ -203,18 +203,29 @@ export function createD1Store(db, demo = true) {
         "Enregistrez le paiement avant de marquer la commande comme retirée.",
         409,
       );
-    const result = await db
-      .prepare(
-        "UPDATE vb_orders SET status=?,payment_status=? WHERE id=? AND demo=? AND status=? AND payment_status=? RETURNING id",
-      )
-      .bind(next, payment, id, mode, order.status, order.payment_status)
-      .first();
+    const cancelling = next === "cancelled";
+    const reason = cancelling ? cancellationReason(patch.cancellationReason) : "";
+    if (cancelling && order.status === "cancelled") return { cancelled: true };
+    if (cancelling && !demo && !emailConfig?.from)
+      throw new AppError("L’envoi des e-mails doit être configuré avant l’annulation.", 503);
+    const update = db.prepare(
+      "UPDATE vb_orders SET status=?,payment_status=? WHERE id=? AND demo=? AND status=? AND payment_status=? RETURNING id"
+    ).bind(next, payment, id, mode, order.status, order.payment_status);
+    let result;
+    if (cancelling) {
+      const payload = demo ? null : JSON.stringify(buildCancellation({ ...order, payment_status: payment }, reason, emailConfig));
+      const results = await db.batch([
+        update,
+        db.prepare("INSERT OR IGNORE INTO vb_cancellation_emails(order_id,reason,payload,created_at) SELECT id,?,?,? FROM vb_orders WHERE id=? AND demo=? AND status='cancelled'")
+          .bind(reason, payload, new Date().toISOString(), id, mode),
+      ]);
+      result = results[0].results[0];
+    } else result = await update.first();
     if (!result)
-      throw new AppError(
-        "Cette commande vient de changer. Actualisez puis réessayez.",
-        409,
-      );
+      throw new AppError("Cette commande vient de changer. Actualisez puis réessayez.", 409);
+    return { cancelled: cancelling };
   }
+
   async function updateProduct(id, patch) {
     if (!PRODUCTS.some((p) => p.id === id))
       throw new AppError("Produit introuvable.", 404);

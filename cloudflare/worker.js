@@ -1,7 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { Buffer } from "node:buffer";
 import { createD1Store, digest } from "./store.js";
-import { verifyTurnstile, sendConfirmation } from "./integrations.js";
+import { verifyTurnstile, sendConfirmation, sendCancellation } from "./integrations.js";
 import { AppError } from "../lib/order-rules.js";
 import { availableDates } from "../public/schedule.js";
 const HASH_PATTERN = /^[a-f0-9]{32}:[a-f0-9]{128}$/;
@@ -279,6 +279,8 @@ async function handle(request, env, url, fetcher) {
           "Les commandes de test n’envoient pas d’e-mail.",
           400,
         );
+      const order = await db.prepare("SELECT status FROM vb_orders WHERE id=? AND demo=0").bind(path.slice("/api/admin/email/".length)).first();
+      if (!order || order.status === "cancelled") throw new AppError("Cette confirmation ne peut plus être envoyée.", 409);
       await allow(db, `email:${ip}`, 10, 60000);
       const emailStatus = await sendConfirmation(
         db,
@@ -287,6 +289,14 @@ async function handle(request, env, url, fetcher) {
         fetcher,
       );
       return json({ emailStatus });
+    }
+    if (path.startsWith("/api/admin/cancellation-email/") && request.method === "POST") {
+      if (demo) throw new AppError("Les commandes de test n’envoient pas d’e-mail.", 400);
+      await allow(db, `email:${ip}`, 10, 60000);
+      const id = path.slice("/api/admin/cancellation-email/".length);
+      const order = await db.prepare("SELECT id FROM vb_orders WHERE id=? AND demo=0 AND status='cancelled'").bind(id).first();
+      if (!order) throw new AppError("Commande annulée introuvable.", 404);
+      return json({ emailStatus: await sendCancellation(db, id, env, fetcher) });
     }
     if (path === "/api/admin/legacy-orders" && request.method === "GET") {
       const { results } = demo
@@ -304,8 +314,14 @@ async function handle(request, env, url, fetcher) {
     if (path === "/api/admin/orders" && request.method === "GET")
       return json({ orders: await store.list(), demo });
     if (path.startsWith("/api/admin/orders/") && request.method === "PATCH") {
-      await store.updateOrder(path.slice("/api/admin/orders/".length), body);
-      return json({ ok: true });
+      const id = path.slice("/api/admin/orders/".length);
+      const result = await store.updateOrder(id, body, { from: env.EMAIL_FROM });
+      let cancellationEmailStatus = "not_required";
+      if (result.cancelled && !demo) {
+        try { cancellationEmailStatus = await sendCancellation(db, id, env, fetcher); }
+        catch { cancellationEmailStatus = "pending"; }
+      }
+      return json({ ok: true, cancellationEmailStatus });
     }
     if (path.startsWith("/api/admin/products/") && request.method === "PATCH") {
       await store.updateProduct(

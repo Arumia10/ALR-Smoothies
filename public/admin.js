@@ -105,7 +105,7 @@ function renderOrders() {
               preparing: ["ready", "Marquer comme prête"],
               ready: ["collected", "Marquer comme retirée"],
             }[o.status];
-          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${paymentLabel[o.payment_status]}</span><p>${escapeHTML(emailLabels[o.email_status] || "")}</p><div class="order-actions">${["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">Enregistrer le paiement</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
+          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${paymentLabel[o.payment_status]}</span><p>${escapeHTML(o.status === "cancelled" ? (o.cancellation_email_status ? "Annulation · " + emailLabels[o.cancellation_email_status] : "") : (emailLabels[o.email_status] || ""))}</p>${o.cancellation_reason ? `<p class="cancellation-reason"><strong>Message au client :</strong><br>${escapeHTML(o.cancellation_reason)}</p>` : ""}<div class="order-actions">${o.status === "cancelled" && ["pending", "failed", "sending"].includes(o.cancellation_email_status) ? `<button class="button secondary" data-cancellation-email="${o.id}">Réessayer l’e-mail d’annulation</button>` : ""}${o.status !== "cancelled" && ["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">Enregistrer le paiement</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
         })
         .join("")
     : '<div class="admin-empty"><h3>Aucune commande à afficher.</h3><p>Aucune commande ne correspond à cette sélection. Actualisez pour rechercher de nouvelles commandes.</p></div>';
@@ -192,13 +192,19 @@ for (const tab of ["orders", "products"])
 $("#admin-orders").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-order]");
   if (!b) return;
-  if (
-    b.dataset.status === "cancelled" &&
-    !confirm(
-      "Annuler cette commande ? Si elle a été payée, le remboursement doit être géré séparément.",
-    )
-  )
+  if (b.dataset.status === "cancelled") {
+    const order = orders.find(o => o.id === b.dataset.order);
+    if (!order) return;
+    $("#cancel-form").reset();
+    $("#cancel-form").dataset.order = order.id;
+    $("#cancel-customer").textContent = order.id + " · " + order.first_name + " " + order.last_name;
+    $("#cancel-paid").hidden = order.payment_status !== "paid";
+    $("#cancel-preview").hidden = !order.demo;
+    $("#cancel-error").hidden = true;
+    $("#cancel-dialog").showModal();
+    $("#cancel-reason").focus();
     return;
+  }
   if (b.dataset.paid && !confirm("Avez-vous reçu et vérifié ce paiement ?"))
     return;
   b.disabled = true;
@@ -331,4 +337,46 @@ $("#load-legacy").addEventListener("click", async (event) => {
   } finally {
     event.target.disabled = false;
   }
+});
+
+let cancelling = false;
+$("#cancel-back").addEventListener("click", () => $("#cancel-dialog").close());
+$("#cancel-dialog").addEventListener("cancel", (event) => { if (cancelling) event.preventDefault(); });
+$("#cancel-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (cancelling) return;
+  cancelling = true;
+  const form = event.target;
+  const controls = [...form.querySelectorAll("button,textarea")];
+  controls.forEach(c => c.disabled = true);
+  $("#cancel-error").hidden = true;
+  try {
+    const result = await api(`admin/orders/${form.dataset.order}`, "PATCH", {
+      status: "cancelled", cancellationReason: $("#cancel-reason").value.trim(),
+    });
+    $("#cancel-dialog").close();
+    await refresh();
+    if (result.cancellationEmailStatus && !["sent", "not_required"].includes(result.cancellationEmailStatus)) {
+      error(new Error("Commande annulée, mais l’envoi de l’e-mail n’est pas confirmé. Dans « Annulée », vérifiez son état et réessayez l’envoi si nécessaire."));
+    } else toast(result.cancellationEmailStatus === "sent" ? "Commande annulée. E-mail transmis au service d’envoi." : "Commande de test annulée.");
+  } catch (e) {
+    if ($("#cancel-dialog").open) {
+      $("#cancel-error").textContent = e.message;
+      $("#cancel-error").hidden = false;
+    } else error(e);
+  } finally {
+    cancelling = false;
+    controls.forEach(c => c.disabled = false);
+  }
+});
+$("#admin-orders").addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-cancellation-email]");
+  if (!button) return;
+  button.disabled = true;
+  try {
+    const result = await api(`admin/cancellation-email/${encodeURIComponent(button.dataset.cancellationEmail)}`, "POST", {});
+    toast(emailLabels[result.emailStatus] || "Envoi non disponible");
+    await refresh();
+  } catch (e) { error(e); }
+  finally { button.disabled = false; }
 });

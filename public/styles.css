@@ -1810,3 +1810,8 @@ legend {
 #jar-price {
   display: block;
 }
+
+.jar-return { margin: 24px 0; padding: 20px; border: 1px solid #d5ddca; border-radius: 14px; background: #eef1e6; text-align: left; }
+.jar-return h4 { margin: 0 0 10px; font-size: 21px; }
+.jar-return p { font-size: 14px; line-height: 1.65; margin: 0 0 16px; }
+.jar-return img { display: block; width: 100%; height: auto; max-height: 280px; object-fit: cover; border-radius: 10px; }
