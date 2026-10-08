@@ -190,17 +190,16 @@ function loadTurnstile() {
       else resolve();
     };
     const ready = () => {
-      if (!window.turnstile) return finish(new Error("unavailable"));
-      try { window.turnstile.ready(() => finish()); }
-      catch (error) { finish(error); }
+      if (typeof window.turnstile?.render !== "function") return finish(new Error("script_unavailable"));
+      finish();
     };
-    const timer = setTimeout(() => finish(new Error("timeout")), 12000);
-    if (window.turnstile) return ready();
+    const timer = setTimeout(() => finish(new Error("script_timeout")), 15000);
+    if (typeof window.turnstile?.render === "function") return ready();
+    window.vitaminBoostTurnstileLoaded = ready;
     script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=vitaminBoostTurnstileLoaded";
     script.async = true;
-    script.onload = ready;
-    script.onerror = () => finish(new Error("unavailable"));
+    script.onerror = () => finish(new Error("script_unavailable"));
     document.head.append(script);
   }).catch((error) => {
     turnstileLoading = null;
@@ -218,7 +217,7 @@ async function prepareTurnstile(attempt = 0) {
   $("#security-retry").hidden = true;
   $("#security-message").textContent = "Vérification de sécurité…";
   resetSubmit();
-  const recover = () => {
+  const recover = (code = "challenge_timeout") => {
     if (!current() || submitting || recovering) return;
     recovering = true;
     clearTimeout(securityTimer);
@@ -230,7 +229,8 @@ async function prepareTurnstile(attempt = 0) {
         if (current()) prepareTurnstile(attempt + 1);
       }, 1000);
     } else {
-      $("#security-message").textContent = "Vérification indisponible. Vérifiez votre connexion, puis réessayez.";
+      const reference = String(code).replace(/[^a-zA-Z0-9_-]/g, "").slice(0,48);
+      $("#security-message").textContent = `Vérification indisponible. Veuillez réessayer. Référence : ${reference}.`;
       $("#security-retry").hidden = false;
     }
   };
@@ -241,7 +241,7 @@ async function prepareTurnstile(attempt = 0) {
     $("#security-retry").hidden = true;
     if (!submitting) resetSubmit();
     clearTimeout(securityTimer);
-    securityTimer = setTimeout(recover, 20000);
+    securityTimer = setTimeout(() => recover(), 30000);
   };
   try {
     await loadTurnstile();
@@ -277,9 +277,9 @@ async function prepareTurnstile(attempt = 0) {
       "after-interactive-callback": () => {
         if (current() && !turnstileToken) waiting();
       },
-      "error-callback": () => { recover(); return true; },
+      "error-callback": (code) => { recover(code); return true; },
     });
-  } catch { recover(); }
+  } catch (error) { recover(error?.code || "widget_initialization"); }
 }
 $("#security-retry").addEventListener("click", () => {
   if (!submitting) prepareTurnstile();

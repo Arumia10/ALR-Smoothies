@@ -1,4 +1,5 @@
 import { AppError } from "../lib/order-rules.js";
+import { PRODUCTS } from "../public/catalog.js";
 import { formatDate } from "../public/schedule.js";
 
 const escapeHTML = (value) =>
@@ -63,7 +64,7 @@ export function buildConfirmation(order, config) {
       : {}),
     subject: `Votre commande VitaminBoost ${order.id}`,
     text,
-    html: `<div style="font-family:Arial,sans-serif;color:#294336;max-width:600px;margin:auto;padding:24px"><h1>VitaminBoost</h1><p>Bonjour ${escapeHTML(order.first)},</p><p>Votre commande <strong>${escapeHTML(order.id)}</strong> est enregistrée.</p><ul>${lines.map((line) => `<li>${escapeHTML(line)}</li>`).join("")}</ul><p><strong>Total : ${euros(order.total)}</strong></p><h2>Votre retrait</h2><p>${escapeHTML(date)}<br>${escapeHTML(order.location)}</p><p>Paiement au retrait. Conservez votre référence de commande.</p><h2>Retour des bocaux</h2><p>Après votre smoothie ou votre breakfast jar, rincez brièvement le bocal et son couvercle. Déposez-les ensuite dans les bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz.</p><p>La mini-entreprise de la 2TPCM</p></div>`,
+    html: confirmationHTML(order, date),
   };
 }
 
@@ -152,4 +153,25 @@ export function buildCancellation(order, reason, config) {
     text: `Bonjour ${order.first_name},\n\nVotre commande ${order.id}, prévue pour le ${formatDate(order.date)}, a été annulée par l’équipe VitaminBoost.\n\n${explanation}\n\n${order.payment_status === "paid" ? "Si vous avez déjà payé, contactez l’équipe pour organiser le remboursement." : "Aucun paiement n’est demandé pour cette commande."}\n\nL’équipe VitaminBoost — 2TPCM`,
     html: `<div style="font-family:Arial,sans-serif;color:#294336;max-width:600px;margin:auto;padding:24px"><h1>Commande annulée</h1><p>Bonjour ${escapeHTML(order.first_name)},</p><p>Votre commande <strong>${escapeHTML(order.id)}</strong>, prévue pour le ${escapeHTML(formatDate(order.date))}, a été annulée par l’équipe VitaminBoost.</p><p style="white-space:pre-wrap">${escapeHTML(explanation)}</p><p>${order.payment_status === "paid" ? "Si vous avez déjà payé, contactez l’équipe pour organiser le remboursement." : "Aucun paiement n’est demandé pour cette commande."}</p><p>L’équipe VitaminBoost — 2TPCM</p></div>`,
   };
+}
+
+function confirmationHTML(order, date) {
+  const images = new Map(PRODUCTS.map(product => [product.id, product.image]));
+  const rows = order.items.map(item => {
+    const image = images.get(item.id);
+    const photo = image ? '<img src="https://vitaminboostalr.com/assets/' + encodeURIComponent(image) + '" width="88" alt="' + escapeHTML(item.name) + '" style="display:block;width:88px;max-width:100%;height:auto;border:0;border-radius:12px">' : '';
+    return '<tr><td width="96" style="padding:16px 8px 16px 0;border-bottom:1px solid #e2e5d9;vertical-align:middle">' + photo + '</td><td style="padding:16px 8px;border-bottom:1px solid #e2e5d9;vertical-align:middle"><strong style="font-size:16px">' + escapeHTML(item.name) + '</strong><br><span style="font-size:13px;color:#657267;line-height:24px">' + item.qty + ' × ' + euros(item.price) + '</span></td><td align="right" style="padding:16px 0;border-bottom:1px solid #e2e5d9;vertical-align:middle;white-space:nowrap;font-weight:bold;font-size:15px">' + euros(item.price * item.qty) + '</td></tr>';
+  }).join('');
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Votre commande VitaminBoost</title></head>
+<body style="margin:0;padding:0;background-color:#f2f3eb;color:#244737;font-family:Arial,Helvetica,sans-serif">
+<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden">Votre commande est confirmée. Retrouvez vos produits et les informations de retrait.</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#f2f3eb"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e2e5d9;border-radius:20px;overflow:hidden">
+<tr><td style="padding:32px 24px;background-color:#244737;color:#ffffff"><a href="https://vitaminboostalr.com" style="text-decoration:none;color:#ffffff;font-family:Georgia,serif;font-size:35px;font-weight:bold">VitaminBoost</a><p style="margin:10px 0 0;font-size:11px;letter-spacing:2px;color:#dae7cb">LA MINI-ENTREPRISE DE LA 2TPCM · ALR</p></td></tr>
+<tr><td style="padding:28px 24px 8px"><p style="margin:0 0 12px;font-size:11px;letter-spacing:2px;font-weight:bold;color:#597547">COMMANDE CONFIRMÉE</p><h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:30px;line-height:1.2;font-weight:normal">Merci pour votre commande !</h1><p style="margin:0;font-size:15px;line-height:24px">Bonjour ${escapeHTML(order.first)},<br>Votre commande est bien enregistrée. Voici votre récapitulatif.</p><p style="margin:16px 0 0;font-size:12px;color:#657267;word-break:break-all">Référence : <strong>${escapeHTML(order.id)}</strong></p></td></tr>
+<tr><td style="padding:8px 24px 24px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${rows}<tr><td colspan="2" style="padding-top:22px;font-size:16px;font-weight:bold">Total à payer au retrait</td><td align="right" style="padding-top:22px;font-size:24px;font-weight:bold;white-space:nowrap">${euros(order.total)}</td></tr></table></td></tr>
+<tr><td style="padding:0 24px 24px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td style="background-color:#eaf0de;padding:22px;border-radius:14px"><h2 style="margin:0 0 12px;font-size:18px">Votre retrait</h2><p style="margin:0;font-size:16px;font-weight:bold;line-height:24px">${escapeHTML(date)}</p><p style="margin:8px 0 0;font-size:14px;line-height:22px">${escapeHTML(order.location)}</p><p style="margin:16px 0 0;font-size:13px;line-height:21px">Le paiement s’effectue au retrait. Conservez cet e-mail pour retrouver votre référence.</p></td></tr></table></td></tr>
+<tr><td style="padding:0 24px 28px"><h2 style="margin:0 0 10px;font-size:18px">Un bocal à rapporter</h2><p style="margin:0;font-size:14px;line-height:23px;color:#59675c">Après votre smoothie ou votre breakfast jar, <strong>rincez brièvement le bocal et son couvercle</strong>. Déposez-les dans les <strong>bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz</strong>.</p><p style="margin:12px 0 0;font-size:14px;line-height:23px;color:#59675c">Merci de nous aider à les réutiliser.</p></td></tr>
+<tr><td style="padding:22px 24px;background-color:#f7f8f2;border-top:1px solid #e2e5d9"><p style="margin:0;font-size:14px;font-weight:bold">À bientôt,<br>L’équipe VitaminBoost · 2TPCM</p><p style="margin:12px 0 0;font-size:12px;line-height:20px;color:#657267">Une question ? Répondez à cet e-mail.<br><a href="https://vitaminboostalr.com" style="color:#244737">vitaminboostalr.com</a></p></td></tr>
+</table></td></tr></table></body></html>`;
 }
