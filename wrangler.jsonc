@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vitaminboost-alr",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "VitaminBoostALR Database",
+      "database_id": "7829bb23-baa4-4e33-a53d-6bf1ecd50467",
+      "migrations_dir": "migrations-legacy",
+      "migrations_table": "vb_migrations",
+    },
+  ],
+  "vars": {
+    "ORDER_MODE": "preview",
+    "ORDERS_OPEN": "true",
+    "WEEKLY_CAPACITY": "120",
+    "CLOSED_DATES": "",
+    "LIVE_SETUP_CONFIRMED": "false",
+    "TURNSTILE_SITE_KEY": "0x4AAAAAABd3MtYix_xppNef",
+    "EMAIL_FROM": "VitaminBoost ALR <order@vitaminboostalr.com>",
+    "ORDER_NOTIFICATION_EMAIL": "order@vitaminboostalr.com",
+  },
+}

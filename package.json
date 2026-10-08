@@ -1,0 +1,26 @@
+{
+  "name": "vitaminboost-alr",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VitaminBoost ALR storefront and order management",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js",
+    "test": "node --test",
+    "backup": "node --env-file-if-exists=.env scripts/backup.js",
+    "cf:dev": "wrangler dev",
+    "cf:migrate:local": "wrangler d1 migrations apply DB --local",
+    "cf:migrate:remote": "node scripts/check-cloudflare-config.js && wrangler d1 migrations apply DB --remote",
+    "cf:deploy": "node scripts/check-cloudflare-config.js && wrangler deploy",
+    "cf:check": "wrangler deploy --dry-run --outdir .wrangler/check",
+    "test:cloudflare": "node --test tests/cloudflare.test.js"
+  },
+  "devDependencies": {
+    "jsonc-parser": "3.3.1",
+    "wrangler": "4.147.0"
+  }
+}

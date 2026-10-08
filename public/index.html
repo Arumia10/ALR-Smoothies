@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#254637" />
+    <meta
+      name="description"
+      content="Smoothies fruités et pots petit-déjeuner VitaminBoost ALR. Commandez avant lundi à 08 h 00 et choisissez votre retrait à l’école."
+    />
+    <title>VitaminBoost ALR — Votre pause pleine de couleurs.</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" type="module"></script>
+  </head>
+  <body>
+    <a class="skip" href="#menu">Aller à la carte</a>
+    <div class="announcement">
+      <span>La mini-entreprise de la 2TPCM.</span
+      ><span class="announcement-right"
+        >Pour toute la communauté ALR <span aria-hidden="true">↗</span></span
+      >
+    </div>
+    <header class="site-header wrap">
+      <a class="brand" href="#" aria-label="Accueil VitaminBoost"
+        >VitaminBoost</a
+      >
+      <nav aria-label="Navigation principale">
+        <a href="#menu">Notre carte</a><a href="#story">Notre histoire</a
+        ><a href="#how-it-works">Comment commander</a>
+      </nav>
+      <button
+        class="cart-button"
+        id="open-cart"
+        aria-label="Ouvrir le panier, 0 article"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 8h14l1 13H4L5 8Zm3 0V6a4 4 0 0 1 8 0v2" /></svg
+        ><span>Votre panier</span><b id="cart-count">0</b>
+      </button>
+    </header>
+    <main>
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="tiny-sun" aria-hidden="true">✳</span> VOTRE PAUSE
+            PLEINE DE COULEURS
+          </div>
+          <h1 id="hero-title">Des fruits.<br />Et du <em>bonheur.</em></h1>
+          <p>
+            Des smoothies et des pots petit-déjeuner à commander pour votre
+            pause.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#menu"
+              >Découvrir la carte <span aria-hidden="true">↗</span></a
+            ><span class="hero-price"
+              >Smoothies de 330 ml<br /><strong id="hero-price"
+                >3,50 € le verre</strong
+              ></span
+            >
+          </div>
+          <div class="hero-foot">
+            <span class="small-icon" aria-hidden="true">↻</span> Savourez.
+            Souriez. Rapportez votre verre.
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img
+            src="assets/hero-breakfast.png"
+            alt="Deux smoothies fruités et un pot petit-déjeuner aux fraises, chia et granola"
+            fetchpriority="high"
+            width="1254"
+            height="1254"
+          />
+          <div class="hero-sticker">
+            <span>DES FRUITS</span><b>100%</b><span>BONNE HUMEUR</span>
+          </div>
+          <div class="photo-caption">
+            <span>Une pause colorée<br />dans votre journée.</span
+            ><span aria-hidden="true">✳</span>
+          </div>
+        </div>
+      </section>
+      <div class="values-strip" aria-label="Nos engagements">
+        <span>DE VRAIS FRUITS</span><b aria-hidden="true">✳</b
+        ><span>MIXÉS SOUS VIDE</span><b aria-hidden="true">✳</b
+        ><span>VERRES RÉUTILISABLES</span><b aria-hidden="true">✳</b
+        ><span>POUR L’ALR</span><b aria-hidden="true">✳</b>
+      </div>
+      <section
+        class="menu-section wrap section"
+        id="menu"
+        aria-labelledby="menu-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">LA CARTE VITAMINBOOST</p>
+            <h2 id="menu-title">À chacun sa pause <em>gourmande.</em></h2>
+          </div>
+          <p>
+            Huit smoothies et deux pots petit-déjeuner. <br /><span
+              id="menu-price"
+              >Smoothies · 330 ml · 3,50 €</span
+            ><br /><span id="jar-price">Pots petit-déjeuner · 4,50 €</span>
+          </p>
+        </div>
+        <div class="menu-tools">
+          <div class="filters" role="group" aria-label="Filtrer la carte">
+            <button class="filter active" data-filter="all" aria-pressed="true">
+              Toute la carte <span id="product-count">10</span></button
+            ><button class="filter" data-filter="berries" aria-pressed="false">
+              Fruits rouges</button
+            ><button class="filter" data-filter="tropical" aria-pressed="false">
+              Tropicaux</button
+            ><button class="filter" data-filter="greens" aria-pressed="false">
+              Tout vert
+            </button>
+            <button
+              class="filter"
+              id="breakfast-filter"
+              data-filter="breakfast"
+              aria-pressed="false"
+              hidden
+            >
+              Pots petit-déjeuner
+            </button>
+          </div>
+          <span class="menu-caption"
+            >Trouvez votre prochain coup de cœur
+            <span aria-hidden="true">↙</span></span
+          >
+        </div>
+        <div class="product-grid" id="product-grid" aria-live="polite"></div>
+        <p class="allergen-note">
+          <span aria-hidden="true">ⓘ</span> Une allergie alimentaire ?
+          <a href="#contact">Contactez notre équipe</a> avant de commander.
+          Notre espace de préparation ne permet pas de garantir l’absence
+          d’allergènes.
+        </p>
+      </section>
+      <section
+        class="story-section wrap"
+        id="story"
+        aria-labelledby="story-title"
+      >
+        <div class="story-image">
+          <img
+            src="assets/fruit-story.jpg"
+            width="1024"
+            height="1536"
+            loading="lazy"
+            alt="Des fruits colorés autour d’un smoothie aux fruits rouges"
+          /><span class="story-label"
+            >Beaucoup de fruits.<br />Tout simplement.</span
+          >
+        </div>
+        <div class="story-copy">
+          <p class="eyebrow">UN PROJET DE LA 2TPCM</p>
+          <h2 id="story-title">
+            Plus qu’une pause.<br />Un projet <em>qui nous rassemble.</em>
+          </h2>
+          <p>
+            VitaminBoost est la mini-entreprise de la classe de 2TPCM de l’ALR.
+            Nous choisissons les recettes, préparons les produits et gérons vos
+            commandes.
+          </p>
+          <a
+            class="school-logo"
+            href="https://www.alr.lu/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="assets/alr-logo.png"
+              width="3181"
+              height="2256"
+              loading="lazy"
+              alt="ALR — Atert-Lycée Redange"
+            />
+          </a>
+          <div class="story-detail">
+            <span aria-hidden="true">✳</span>
+            <div>
+              <h3>Des smoothies mixés sous vide</h3>
+              <p>
+                Notre blender retire l’air avant de mixer les ingrédients. Une
+                étape qui fait partie de la préparation de nos smoothies.
+              </p>
+            </div>
+          </div>
+          <div class="story-detail">
+            <span aria-hidden="true">↻</span>
+            <div>
+              <h3>Un verre à rapporter</h3>
+              <p>
+                Savourez votre smoothie, rincez votre verre et rapportez-le pour
+                qu’il puisse être réutilisé. Un petit geste à adopter à chaque
+                pause.
+              </p>
+            </div>
+          </div>
+          <a class="text-link" href="#how-it-works"
+            >Découvrez votre nouvelle pause préférée
+            <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </section>
+      <section
+        class="section wrap how-section"
+        id="how-it-works"
+        aria-labelledby="how-title"
+      >
+        <p class="eyebrow">VOTRE PAUSE, EN TOUTE SIMPLICITÉ</p>
+        <h2 id="how-title">Votre commande. <em>En trois étapes.</em></h2>
+        <div class="steps">
+          <article>
+            <span class="step-number">01</span>
+            <h3>Faites votre choix.</h3>
+            <p>
+              Smoothie fruité ou pot petit-déjeuner ? Choisissez vos favoris et
+              ajoutez-les à votre panier.
+            </p>
+          </article>
+          <article>
+            <span class="step-number">02</span>
+            <h3>Choisissez votre retrait.</h3>
+            <p>
+              Commandez avant le lundi à 08 h 00 pour un retrait dans la
+              semaine, puis choisissez le lieu et le jour proposés pour votre
+              profil.
+            </p>
+          </article>
+          <article>
+            <span class="step-number">03</span>
+            <h3>Savourez votre pause.</h3>
+            <p>
+              Récupérez votre commande et profitez de votre pause. Après votre
+              smoothie, pensez à rincer et à rapporter votre verre.
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="faq-section wrap">
+        <div>
+          <p class="eyebrow">LES RÉPONSES À VOS QUESTIONS</p>
+          <h2>Une question ?<br /><em>On vous répond.</em></h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>
+              Quand puis-je retirer ma commande ?<span aria-hidden="true"
+                >+</span
+              >
+            </summary>
+            <p>
+              Les élèves retirent leur commande le lundi à 09 h 30 devant la
+              bibliothèque. Les enseignants peuvent choisir le lundi au Proffen
+              Konferenz de 09 h 30 à 09 h 45. Le retrait au réfrigérateur à
+              l’extérieur du Proffenkonferenz est possible le lundi et le mardi,
+              pendant les heures d’ouverture de l’école. Le mardi, seul le
+              réfrigérateur est proposé. Les choix adaptés à votre profil
+              apparaissent au moment de commander.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Quelle est la date limite de commande ?<span aria-hidden="true"
+                >+</span
+              >
+            </summary>
+            <p>
+              Commandez avant le lundi à 08 h 00, heure du Luxembourg, pour un
+              retrait dans la semaine. À partir de 08 h 00 le lundi, les
+              nouvelles commandes sont prévues pour la semaine suivante, y
+              compris pour un retrait au réfrigérateur.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Comment payer ma commande ?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              Le paiement se fait au retrait. Scannez le QR code Wero et
+              indiquez le montant de votre commande. L’équipe vérifie le
+              paiement au moment du retrait.
+            </p>
+            <p id="wero-preview-note" class="form-note">
+              Version de démonstration : n’effectuez aucun paiement pour une
+              commande de test.
+            </p>
+            <img
+              class="wero-qr"
+              src="assets/wero-qr.png"
+              width="670"
+              height="807"
+              loading="lazy"
+              alt="QR code Wero de VitaminBoost pour le paiement au retrait"
+            />
+          </details>
+          <details>
+            <summary>
+              Où rapporter mon verre ?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              Rincez d’abord votre verre. Les enseignants peuvent le déposer
+              dans la caisse de retour à l’extérieur du Proffenkonferenz. Les
+              élèves utilisent l’espace de retour prévu à l’école. Notre équipe
+              peut vous indiquer son emplacement.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Puis-je commander si j’ai une allergie ?<span aria-hidden="true"
+                >+</span
+              >
+            </summary>
+            <p>
+              Les ingrédients de nos recettes sont indiqués sur la carte.
+              Contactez notre équipe avant de commander pour vérifier si un
+              produit vous convient. La préparation dans un espace partagé ne
+              permet pas de garantir l’absence d’allergènes.
+            </p>
+          </details>
+        </div>
+      </section>
+      <section class="contact-banner wrap" id="contact">
+        <div>
+          <p class="eyebrow">ÉCRIVEZ-NOUS</p>
+          <h2>Une question ?<br />Parlons-en <em>ensemble.</em></h2>
+          <p>
+            Une question sur votre commande, nos ingrédients ou notre projet ?
+          </p>
+        </div>
+        <a
+          class="button light"
+          href="https://teams.microsoft.com/l/chat/0/0?users=BauNo921%40school.lu"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Nous contacter sur Teams <span aria-hidden="true">↗</span></a
+        >
+      </section>
+    </main>
+    <footer class="wrap">
+      <a class="brand footer-brand" href="#" aria-label="Accueil VitaminBoost"
+        >VitaminBoost</a
+      ><span>La mini-entreprise de la 2TPCM · ALR</span>
+      <div>
+        <button class="plain" id="privacy-open">Confidentialité</button
+        ><a href="admin.html">Espace équipe</a
+        ><span>© 2026 VitaminBoost ALR</span>
+      </div>
+    </footer>
+    <div class="preview-indicator" id="preview-indicator">
+      Aperçu · aucune commande ni aucun paiement réels
+    </div>
+    <button
+      id="bag-dock"
+      class="bag-dock"
+      hidden
+      aria-label="Voir votre panier"
+    >
+      <span id="dock-summary"></span><strong>Voir le panier →</strong>
+    </button>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <dialog id="bag-dialog" class="bag-dialog" aria-labelledby="bag-title">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">VOTRE PAUSE SE PRÉPARE</p>
+          <h2 id="bag-title">Votre panier<span class="accent">.</span></h2>
+        </div>
+        <button class="icon-button close-dialog" aria-label="Fermer le panier">
+          ×
+        </button>
+      </div>
+      <div class="bag-body" id="bag-items"></div>
+      <div class="bag-footer">
+        <div class="total-row">
+          <span>Sous-total</span><strong id="bag-total">0,00 €</strong>
+        </div>
+        <p>Retrait à l’école · Sans frais supplémentaires</p>
+        <button id="checkout-open" class="button primary full">
+          Passer commande <span aria-hidden="true">→</span></button
+        ><button class="plain close-dialog full">Continuer mes achats</button>
+      </div>
+    </dialog>
+    <dialog
+      id="checkout-dialog"
+      class="checkout-dialog"
+      aria-labelledby="checkout-title"
+    >
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow">ENCORE UN PETIT INSTANT</p>
+          <h2 id="checkout-title">Votre pause <em>vous attend.</em></h2>
+        </div>
+        <button
+          class="icon-button close-dialog"
+          aria-label="Fermer la commande"
+        >
+          ×
+        </button>
+      </div>
+      <div class="checkout-steps">
+        <span class="active" id="step-one">1. Vos informations</span
+        ><span id="step-two">2. Vérification</span>
+      </div>
+      <form id="checkout-form">
+        <div id="details-step">
+          <div class="two-fields">
+            <label
+              >Prénom<input
+                name="firstName"
+                autocomplete="given-name"
+                required
+                maxlength="60" /></label
+            ><label
+              >Nom<input
+                name="lastName"
+                autocomplete="family-name"
+                required
+                maxlength="60"
+            /></label>
+          </div>
+          <label
+            >Adresse e-mail<input
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              maxlength="120"
+              placeholder="vous@school.lu" /></label
+          ><label
+            >Je suis…<select name="role" id="role" required>
+              <option value="Teacher" selected>Enseignant</option>
+              <option value="Student">Élève</option>
+              <option value="Other">Autre</option>
+            </select></label
+          ><label
+            >Date de retrait<select
+              name="date"
+              id="pickup-date"
+              required
+            ></select
+          ></label>
+          <fieldset>
+            <legend>Où souhaitez-vous retirer votre commande ?</legend>
+            <div id="fulfillment-options"></div>
+          </fieldset>
+
+          <p class="form-note">
+            Clôture des commandes : lundi à 08 h 00 · Heure du Luxembourg
+          </p>
+          <label class="honeypot" aria-hidden="true"
+            >Laissez ce champ vide<input
+              name="website"
+              tabindex="-1"
+              autocomplete="off" /></label
+          ><button class="button primary full" type="submit">
+            Vérifier ma commande <span aria-hidden="true">→</span>
+          </button>
+          <p class="privacy-note">
+            Nous utilisons vos informations pour préparer et gérer votre
+            commande.
+            <button type="button" class="plain privacy-inline">
+              Consulter les informations de confidentialité</button
+            >.
+          </p>
+        </div>
+        <div id="review-step" hidden>
+          <div class="review-summary" id="review-summary"></div>
+          <div class="payment-note">
+            <strong id="payment-title"
+              >Vous utilisez la version de démonstration</strong
+            >
+            <p id="payment-copy">
+              Il s’agit uniquement d’une commande de test. Aucun paiement ne
+              sera effectué et aucun produit ne sera préparé.
+            </p>
+          </div>
+          <label class="check-label"
+            ><input type="checkbox" id="review-consent" />
+            <span
+              >J’ai vérifié ma commande et les informations de retrait.</span
+            ></label
+          >
+          <div id="security-check" hidden>
+            <div id="turnstile-widget"></div>
+            <p id="security-message" class="form-note" role="status"></p>
+            <button type="button" id="security-retry" class="plain">
+              Relancer la vérification
+            </button>
+          </div>
+          <div id="order-error" class="error" role="alert" hidden></div>
+          <button type="button" id="place-order" class="button primary full">
+            Valider la commande de test
+            <span aria-hidden="true">→</span></button
+          ><button type="button" id="back-details" class="plain full">
+            ← Modifier mes informations
+          </button>
+        </div>
+      </form>
+      <div id="order-success" hidden tabindex="-1"></div>
+    </dialog>
+    <dialog
+      id="privacy-dialog"
+      class="info-dialog"
+      aria-labelledby="privacy-title"
+    >
+      <div class="dialog-head">
+        <h2 id="privacy-title">Votre confidentialité.</h2>
+        <button
+          class="icon-button close-dialog"
+          aria-label="Fermer les informations de confidentialité"
+        >
+          ×
+        </button>
+      </div>
+      <p id="privacy-preview">
+        Cet aperçu enregistre les commandes de test dans une base de données
+        réservée aux essais. Utilisez des coordonnées fictives pour vos essais.
+      </p>
+      <p>
+        Pour gérer votre commande, nous recueillons votre nom, votre adresse
+        e-mail, votre profil à l’école, les produits choisis et les informations
+        de retrait. Seul le panier est mémorisé dans ce navigateur, sans vos
+        coordonnées. Nous n’utilisons pas de traceurs publicitaires.
+      </p>
+      <p>
+        Sur le site Cloudflare, la vérification anti-robot utilise Cloudflare
+        Turnstile. Les confirmations de commande sont envoyées via Resend, avec
+        une copie à l’équipe VitaminBoost.
+      </p>
+      <p>
+        Avant l’ouverture des commandes réelles, l’équipe doit préciser le
+        responsable du traitement, la durée de conservation, les modalités
+        d’exercice de vos droits et les conditions de commande. Pour toute
+        question, contactez-nous via le lien Teams de cette page.
+      </p>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Activez JavaScript pour consulter la carte et commander. Vous pouvez
+        aussi contacter notre équipe sur Teams.
+      </p></noscript
+    >
+  </body>
+</html>

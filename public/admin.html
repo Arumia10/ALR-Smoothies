@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Espace équipe · VitaminBoost ALR</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <script type="module" src="admin.js"></script>
+  </head>
+  <body>
+    <header class="site-header wrap">
+      <a class="brand" href="index.html" aria-label="Accueil VitaminBoost"
+        >VitaminBoost</a
+      >
+      <div class="admin-head-actions">
+        <a class="text-link" href="index.html">Voir la boutique ↗</a
+        ><button id="logout" class="plain" hidden>Se déconnecter</button>
+      </div>
+    </header>
+    <main class="wrap admin-main">
+      <section id="login-panel" class="login-panel">
+        <p class="eyebrow">LES COULISSES DE VITAMINBOOST</p>
+        <h1>Bonjour <em>l’équipe.</em></h1>
+        <p>Connectez-vous pour préparer les commandes et gérer la carte.</p>
+        <form id="login-form">
+          <label
+            >Mot de passe de l’équipe<input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              required
+              maxlength="256" /></label
+          ><button class="button primary full" type="submit">
+            Accéder à l’espace équipe <span>→</span>
+          </button>
+        </form>
+        <p class="form-note">
+          Première visite ? Le responsable du site doit définir le mot de passe
+          de l’équipe à l’aide du guide de configuration.
+        </p>
+      </section>
+      <p id="admin-error" class="error" role="alert" hidden></p>
+      <section id="dashboard" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" id="admin-mode">ESPACE ÉQUIPE</p>
+            <h1>Préparons de<br />belles <em>pauses.</em></h1>
+          </div>
+          <button class="button primary" id="refresh">
+            Actualiser les commandes ↻
+          </button>
+        </div>
+        <div class="stats">
+          <article>
+            <span>Commandes en cours</span><strong id="stat-orders">0</strong>
+          </article>
+          <article>
+            <span>Articles à préparer</span
+            ><strong id="stat-smoothies">0</strong>
+          </article>
+          <article>
+            <span>Paiements enregistrés</span
+            ><strong id="stat-sales">0,00 €</strong>
+          </article>
+        </div>
+        <div class="admin-tabs" role="group" aria-label="Vue de gestion">
+          <button class="filter active" id="orders-tab" aria-pressed="true">
+            Commandes</button
+          ><button class="filter" id="products-tab" aria-pressed="false">
+            Carte et disponibilités
+          </button>
+        </div>
+        <section id="orders-panel">
+          <div class="order-tools">
+            <label class="search-label"
+              >Rechercher une commande<input
+                id="search"
+                type="search"
+                placeholder="Nom, e-mail ou référence" /></label
+            ><label
+              >Statut<select id="status-filter">
+                <option value="active">Commandes en cours</option>
+                <option value="all">Toutes les commandes</option>
+                <option value="received">Reçue</option>
+                <option value="preparing">En préparation</option>
+                <option value="ready">Prête</option>
+                <option value="collected">Retirée</option>
+                <option value="cancelled">Annulée</option>
+              </select></label
+            ><button id="export" class="button secondary">
+              Exporter la sélection CSV ↓
+            </button>
+          </div>
+          <p class="form-note">
+            Affichage des 1 000 dernières commandes au maximum. L’annulation
+            d’une commande payée ne déclenche aucun remboursement automatique :
+            celui-ci doit être géré séparément.
+          </p>
+          <div id="admin-orders"></div>
+          <div id="legacy-section" hidden>
+            <button type="button" id="load-legacy" class="button secondary">
+              Consulter les anciennes commandes
+            </button>
+            <p class="form-note">
+              Les 200 dernières commandes de l’ancien site sont conservées ici
+              en lecture seule. Leurs paiements et statuts n’étaient pas
+              enregistrés.
+            </p>
+            <div id="legacy-orders"></div>
+          </div>
+        </section>
+        <section id="products-panel" hidden>
+          <h2>Une carte à jour.</h2>
+          <p>
+            Modifiez les prix ou les disponibilités. Les changements
+            s’appliquent aux nouvelles commandes ; les anciennes conservent
+            leurs prix d’origine.
+          </p>
+          <div id="admin-products" class="admin-products"></div>
+        </section>
+      </section>
+    </main>
+    <div id="admin-toast" role="status" class="toast"></div>
+  </body>
+</html>
