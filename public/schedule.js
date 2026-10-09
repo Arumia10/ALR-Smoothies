@@ -37,6 +37,7 @@ export const STAFF_DELIVERY_LOCATIONS = [
   { id: "teacher-office", label: "Secrétariat professeurs" },
   { id: "sepas", label: "SePAS" },
   { id: "loge", label: "Loge" },
+  { id: "technical", label: "Service technique" },
   { id: "other", label: "Autre" },
 ];
 export function deliveryDestination(role, department, room = "") {
