@@ -89,7 +89,7 @@ export function createD1Store(db, demo = true) {
     const pickup = fulfillmentOptions(input.role, input.date).find(
       (o) => o.id === input.fulfillment,
     );
-    const location = `${pickup.label} · ${pickup.time}`;
+    const location = `${pickup.label}${order.room ? " · " + order.room : ""} · ${pickup.time}`;
     const legacyItems = JSON.stringify(
       order.items.map((item) => ({
         name: item.name,
@@ -105,6 +105,7 @@ export function createD1Store(db, demo = true) {
                 ...order,
                 id,
                 date: input.date,
+                fulfillment: input.fulfillment,
                 location,
               },
               options.email,
@@ -137,7 +138,7 @@ export function createD1Store(db, demo = true) {
         input.role,
         input.date,
         input.fulfillment,
-        "",
+        order.room,
         order.total,
         order.quantity,
         items,

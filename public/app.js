@@ -1,5 +1,5 @@
 import { PRODUCTS, money, cleanCart } from "./catalog.js";
-import { availableDates, fulfillmentOptions, formatDate } from "./schedule.js";
+import { availableDates, fulfillmentOptions, formatDate, STAFF_DELIVERY_LOCATIONS, deliveryDestination } from "./schedule.js";
 const $ = (s) => document.querySelector(s);
 const escapeHTML = (value) =>
   String(value).replace(
@@ -83,6 +83,22 @@ function renderBag() {
   $("#bag-total").textContent = money(total());
   $("#checkout-open").disabled = count === 0;
 }
+$("#delivery-department").innerHTML = '<option value="">Choisissez un service</option>' + STAFF_DELIVERY_LOCATIONS.map(item => '<option value="' + item.id + '">' + item.label + '</option>').join('');
+function updateDeliveryFields() {
+  const delivery = form.elements.fulfillment?.value === "delivery";
+  const staff = $("#role").value === "Other";
+  const department = $("#delivery-department");
+  const custom = delivery && (!staff || department.value === "other");
+  $("#delivery-fields").hidden = !delivery;
+  $("#delivery-department-field").hidden = !delivery || !staff;
+  department.disabled = !delivery || !staff;
+  department.required = delivery && staff;
+  $("#delivery-room-field").hidden = !custom;
+  $("#delivery-room").disabled = !custom;
+  $("#delivery-room").required = custom;
+  if (!custom) $("#delivery-room").value = "";
+  if (!delivery || !staff) department.value = "";
+}
 function updateDates() {
   const current = $("#pickup-date").value;
   const dates =
@@ -102,6 +118,7 @@ function updateFulfillment() {
         `<label class="pickup-choice"><input type="radio" name="fulfillment" value="${o.id}" ${options.some((v) => v.id === current) ? (o.id === current ? "checked" : "") : i === 0 ? "checked" : ""} required><span>${o.label}<small>${o.time}</small></span></label>`,
     )
     .join("");
+  updateDeliveryFields();
 }
 
 function details() {
@@ -113,7 +130,8 @@ function details() {
     role: data.get("role"),
     date: data.get("date"),
     fulfillment: data.get("fulfillment"),
-    room: "",
+    deliveryDepartment: data.get("deliveryDepartment") || "",
+    room: data.get("fulfillment") === "delivery" ? deliveryDestination(data.get("role"), data.get("deliveryDepartment"), data.get("room") || "") : "",
     website: data.get("website"),
     items: cartLines().map((p) => ({ id: p.id, qty: p.qty })),
     expectedTotal: total(),
@@ -134,7 +152,7 @@ function renderReview(data) {
       )
       .join(
         "",
-      )}<hr><div class="total-row"><span>Total</span><strong>${money(total())}</strong></div><p>Retrait à l’école sans frais supplémentaires.</p><hr><h3>${escapeHTML(data.firstName)} ${escapeHTML(data.lastName)}</h3><p>${escapeHTML(data.email)}</p><p><strong>${formatDate(data.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p>`;
+      )}<hr><div class="total-row"><span>Total</span><strong>${money(total())}</strong></div><p>${data.fulfillment === "delivery" ? "Livraison" : "Retrait"} à l’école sans frais supplémentaires.</p><hr><h3>${escapeHTML(data.firstName)} ${escapeHTML(data.lastName)}</h3><p>${escapeHTML(data.email)}</p><p><strong>${formatDate(data.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p>`;
 }
 function openCheckout() {
   stopTurnstile();
@@ -301,7 +319,7 @@ async function submitOrder() {
   error.hidden = true;
   if (!$("#review-consent").checked) {
     error.textContent =
-      "Veuillez vérifier votre commande et vos informations de retrait.";
+      "Veuillez vérifier votre commande et vos informations de réception.";
     error.hidden = false;
     return;
   }
@@ -348,11 +366,11 @@ async function submitOrder() {
     form.hidden = true;
     $(".checkout-steps").hidden = true;
     $("#order-success").innerHTML =
-      `<span class="success-symbol" aria-hidden="true">✓</span><h3>${result.demo ? "Votre test est enregistré." : "Votre commande est enregistrée."}</h3><p>${result.demo ? "Il s’agit d’une commande de test. Aucun paiement n’a été effectué et aucun produit ne sera préparé." : "Votre commande a été enregistrée. Le paiement s’effectue au retrait."}</p><div class="review-summary"><div class="review-line"><span>Référence de commande</span><strong>${escapeHTML(result.reference)}</strong></div><div class="review-line"><span>Total</span><strong>${money(result.total)}</strong></div><hr><p><strong>${formatDate(result.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p></div><p>Conservez votre référence pour le retrait.</p><section class="jar-return" aria-labelledby="jar-return-title"><h4 id="jar-return-title">Rapportez vos bocaux</h4><p>Après votre smoothie ou votre breakfast jar, rincez brièvement le bocal et son couvercle. Déposez-les ensuite dans les bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz.</p><img src="assets/retour-bocaux.jpg" alt="Le bac vert où déposer les bocaux et leurs couvercles après les avoir rincés" width="3678" height="2856" loading="lazy"></section><button class="button primary full" id="finish-order">Retour à la carte <span aria-hidden="true">↗</span></button>`;
+      `<span class="success-symbol" aria-hidden="true">✓</span><h3>${result.demo ? "Votre test est enregistré." : "Votre commande est enregistrée."}</h3><p>${result.demo ? "Il s’agit d’une commande de test. Aucun paiement n’a été effectué et aucun produit ne sera préparé." : "Votre commande a été enregistrée. Le paiement s’effectue à la remise de la commande."}</p><div class="review-summary"><div class="review-line"><span>Référence de commande</span><strong>${escapeHTML(result.reference)}</strong></div><div class="review-line"><span>Total</span><strong>${money(result.total)}</strong></div><hr><p><strong>${formatDate(result.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p></div><p>Conservez votre référence de commande.</p><section class="jar-return" aria-labelledby="jar-return-title"><h4 id="jar-return-title">Rapportez vos bocaux</h4><p>Après votre smoothie ou votre breakfast jar, rincez brièvement le bocal et son couvercle. Déposez-les ensuite dans les bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz.</p><img src="assets/retour-bocaux.jpg" alt="Le bac vert où déposer les bocaux et leurs couvercles après les avoir rincés" width="3678" height="2856" loading="lazy"></section><button class="button primary full" id="finish-order">Retour à la carte <span aria-hidden="true">↗</span></button>`;
     if (!result.demo) {
       const payment = document.createElement("details");
       payment.innerHTML =
-        '<summary>Payer avec Wero au retrait</summary><p>Scannez ce code et indiquez le total de votre commande. Le paiement sera vérifié par l’équipe.</p><img class="wero-qr" src="assets/wero-qr.png" width="670" height="807" alt="QR code Wero de VitaminBoost">';
+        '<summary>Payer avec Wero à la remise de la commande</summary><p>Scannez ce code et indiquez le total de votre commande. Le paiement sera vérifié par l’équipe.</p><img class="wero-qr" src="assets/wero-qr.png" width="670" height="807" alt="QR code Wero de VitaminBoost">';
       $("#order-success").append(payment);
     }
     if (!result.demo && result.emailStatus) {
@@ -447,7 +465,13 @@ for (const id of ["#open-cart", "#bag-dock"])
     bag.showModal();
   });
 $("#checkout-open").addEventListener("click", openCheckout);
-$("#role").addEventListener("change", updateDates);
+$("#role").addEventListener("change", () => {
+  $("#delivery-department").value = "";
+  $("#delivery-room").value = "";
+  updateDates();
+});
+$("#fulfillment-options").addEventListener("change", updateDeliveryFields);
+$("#delivery-department").addEventListener("change", updateDeliveryFields);
 $("#pickup-date").addEventListener("change", updateFulfillment);
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -535,9 +559,9 @@ async function connect() {
       $("#privacy-preview").hidden = true;
       $("#wero-preview-note").hidden = true;
       $("#preview-indicator").hidden = true;
-      $("#payment-title").textContent = "Paiement au retrait";
+      $("#payment-title").textContent = "Paiement à la remise de la commande";
       $("#payment-copy").textContent =
-        "Votre commande est réservée. Le paiement s’effectue au retrait ; aucun paiement n’est validé en ligne.";
+        "Votre commande est réservée. Le paiement s’effectue à la remise de la commande ; aucun paiement n’est validé en ligne.";
       resetSubmit();
     }
     if (!service.orderingOpen) {

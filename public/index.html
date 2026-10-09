@@ -83,6 +83,7 @@
         </div>
       </section>
       <div class="values-strip" aria-label="Nos engagements">
+        <span>100 % VÉGÉTAL</span><b aria-hidden="true">✳</b>
         <span>DE VRAIS FRUITS</span><b aria-hidden="true">✳</b
         ><span>MIXÉS SOUS VIDE</span><b aria-hidden="true">✳</b
         ><span>VERRES RÉUTILISABLES</span><b aria-hidden="true">✳</b
@@ -224,10 +225,9 @@
           </article>
           <article>
             <span class="step-number">02</span>
-            <h3>Choisissez votre retrait.</h3>
+            <h3>Choisissez le jour et le lieu.</h3>
             <p>
-              Commandez avant le lundi à 08 h 00 pour un retrait dans la
-              semaine, puis choisissez le lieu et le jour proposés pour votre
+              Commandez avant le lundi à 08 h 00 pour la semaine, puis choisissez le lieu et le jour proposés pour votre
               profil.
             </p>
           </article>
@@ -249,14 +249,14 @@
         <div class="faq-list">
           <details>
             <summary>
-              Quand puis-je retirer ma commande ?<span aria-hidden="true"
+              Quels sont les modes de retrait et de livraison ?<span aria-hidden="true"
                 >+</span
               >
             </summary>
             <p>
               Les élèves retirent leur commande le lundi à 09 h 30 devant la
-              bibliothèque. Les enseignants peuvent choisir le lundi au Proffen
-              Konferenz de 09 h 30 à 09 h 45. Le retrait au réfrigérateur à
+              bibliothèque. Les enseignants et le personnel peuvent choisir le lundi au Proffen
+              Konferenz de 09 h 30 à 09 h 45, ou une livraison à l’école au lieu indiqué dans le formulaire. Le retrait au réfrigérateur à
               l’extérieur du Proffenkonferenz est possible le lundi et le mardi,
               pendant les heures d’ouverture de l’école. Le mardi, seul le
               réfrigérateur est proposé. Les choix adaptés à votre profil
@@ -271,7 +271,7 @@
             </summary>
             <p>
               Commandez avant le lundi à 08 h 00, heure du Luxembourg, pour un
-              retrait dans la semaine. À partir de 08 h 00 le lundi, les
+              retrait ou une livraison dans la semaine. À partir de 08 h 00 le lundi, les
               nouvelles commandes sont prévues pour la semaine suivante, y
               compris pour un retrait au réfrigérateur.
             </p>
@@ -281,9 +281,9 @@
               Comment payer ma commande ?<span aria-hidden="true">+</span>
             </summary>
             <p>
-              Le paiement se fait au retrait. Scannez le QR code Wero et
+              Le paiement se fait à la remise de la commande. Scannez le QR code Wero et
               indiquez le montant de votre commande. L’équipe vérifie le
-              paiement au moment du retrait.
+              paiement lors du retrait ou de la livraison.
             </p>
             <p id="wero-preview-note" class="form-note">
               Version de démonstration : n’effectuez aucun paiement pour une
@@ -295,7 +295,7 @@
               width="670"
               height="807"
               loading="lazy"
-              alt="QR code Wero de VitaminBoost pour le paiement au retrait"
+              alt="QR code Wero de VitaminBoost pour le paiement de la commande"
             />
           </details>
           <details>
@@ -375,7 +375,7 @@
         <div class="total-row">
           <span>Sous-total</span><strong id="bag-total">0,00 €</strong>
         </div>
-        <p>Retrait à l’école · Sans frais supplémentaires</p>
+        <p>Retrait ou livraison à l’école · Sans frais supplémentaires</p>
         <button id="checkout-open" class="button primary full">
           Passer commande <span aria-hidden="true">→</span></button
         ><button class="plain close-dialog full">Continuer mes achats</button>
@@ -431,19 +431,27 @@
             >Je suis…<select name="role" id="role" required>
               <option value="Teacher" selected>Enseignant</option>
               <option value="Student">Élève</option>
-              <option value="Other">Autre</option>
+              <option value="Other">Personnel</option>
             </select></label
           ><label
-            >Date de retrait<select
+            >Date de retrait ou de livraison<select
               name="date"
               id="pickup-date"
               required
             ></select
           ></label>
           <fieldset>
-            <legend>Où souhaitez-vous retirer votre commande ?</legend>
+            <legend>Comment souhaitez-vous recevoir votre commande ?</legend>
             <div id="fulfillment-options"></div>
           </fieldset>
+          <div id="delivery-fields" hidden>
+            <label id="delivery-department-field" hidden>Service à livrer
+              <select name="deliveryDepartment" id="delivery-department" disabled></select>
+            </label>
+            <label id="delivery-room-field" hidden>Lieu de livraison
+              <input name="room" id="delivery-room" maxlength="80" placeholder="Précisez la salle ou le lieu dans l’école" disabled />
+            </label>
+          </div>
 
           <p class="form-note">
             Clôture des commandes : lundi à 08 h 00 · Heure du Luxembourg
@@ -478,7 +486,7 @@
           <label class="check-label"
             ><input type="checkbox" id="review-consent" />
             <span
-              >J’ai vérifié ma commande et les informations de retrait.</span
+              >J’ai vérifié ma commande, la date et le lieu.</span
             ></label
           >
           <div id="security-check" hidden>

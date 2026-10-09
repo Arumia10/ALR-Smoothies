@@ -31,6 +31,19 @@ export function availableDates(role, now = new Date()) {
     }
   return dates;
 }
+export const STAFF_DELIVERY_LOCATIONS = [
+  { id: "direction", label: "Direction" },
+  { id: "student-office", label: "Secrétariat élèves" },
+  { id: "teacher-office", label: "Secrétariat professeurs" },
+  { id: "sepas", label: "SePAS" },
+  { id: "loge", label: "Loge" },
+  { id: "other", label: "Autre" },
+];
+export function deliveryDestination(role, department, room = "") {
+  if (role === "Other" && department !== "other")
+    return STAFF_DELIVERY_LOCATIONS.find(item => item.id === department)?.label || "";
+  return typeof room === "string" ? room.trim() : "";
+}
 export function fulfillmentOptions(role, date) {
   const day = new Date(`${date}T12:00:00Z`).getUTCDay();
   if (role === "Student")
@@ -43,7 +56,7 @@ export function fulfillmentOptions(role, date) {
           },
         ]
       : [];
-  return [1, 2].includes(day)
+  return ["Teacher", "Other"].includes(role) && [1, 2].includes(day)
     ? [
         {
           id: "staff",
@@ -54,6 +67,11 @@ export function fulfillmentOptions(role, date) {
           id: "fridge",
           label: "Réfrigérateur à l’extérieur du Proffenkonferenz",
           time: "Pendant les heures d’ouverture de l’école",
+        },
+        {
+          id: "delivery",
+          label: "Livraison à l’école",
+          time: "Lundi",
         },
       ].filter((option) => day === 1 || option.id === "fridge")
     : [];
