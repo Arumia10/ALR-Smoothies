@@ -47,7 +47,7 @@ function persist() {
 }
 function productImage(p, thumbnail = false) {
   const alt = thumbnail ? "" : escapeHTML(p.ingredients);
-  return `<img src="assets/${encodeURIComponent(p.image)}" alt="${alt}" width="${p.category === "breakfast" ? 1024 : 2362}" height="${p.category === "breakfast" ? 1024 : 1273}" loading="lazy">`;
+  return `<img src="assets/${encodeURIComponent(p.image)}${p.category === "breakfast" ? "" : "?v=ingredients-20261009"}" alt="${alt}" width="${p.category === "breakfast" ? 1024 : 1448}" height="${p.category === "breakfast" ? 1024 : 1086}" loading="lazy">`;
 }
 function renderProducts() {
   $("#product-count").textContent = products.length;

@@ -159,7 +159,7 @@ function confirmationHTML(order, date) {
   const images = new Map(PRODUCTS.map(product => [product.id, product.image]));
   const rows = order.items.map(item => {
     const image = images.get(item.id);
-    const photo = image ? '<img src="https://vitaminboostalr.com/assets/' + encodeURIComponent(image) + '" width="88" alt="' + escapeHTML(item.name) + '" style="display:block;width:88px;max-width:100%;height:auto;border:0;border-radius:12px">' : '';
+    const photo = image ? '<img src="https://vitaminboostalr.com/assets/' + encodeURIComponent(image) + (PRODUCTS.find(product => product.id === item.id)?.category === "breakfast" ? "" : "?v=ingredients-20261009") + '" width="88" alt="' + escapeHTML(item.name) + '" style="display:block;width:88px;max-width:100%;height:auto;border:0;border-radius:12px">' : '';
     return '<tr><td width="96" style="padding:16px 8px 16px 0;border-bottom:1px solid #e2e5d9;vertical-align:middle">' + photo + '</td><td style="padding:16px 8px;border-bottom:1px solid #e2e5d9;vertical-align:middle"><strong style="font-size:16px">' + escapeHTML(item.name) + '</strong><br><span style="font-size:13px;color:#657267;line-height:24px">' + item.qty + ' × ' + euros(item.price) + '</span></td><td align="right" style="padding:16px 0;border-bottom:1px solid #e2e5d9;vertical-align:middle;white-space:nowrap;font-weight:bold;font-size:15px">' + euros(item.price * item.qty) + '</td></tr>';
   }).join('');
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Votre commande VitaminBoost</title></head>
