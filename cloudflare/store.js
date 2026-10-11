@@ -2,7 +2,27 @@ import { randomBytes, createHash } from "node:crypto";
 import { fulfillmentOptions } from "../public/schedule.js";
 import { buildConfirmation, buildCancellation } from "./integrations.js";
 import { PRODUCTS } from "../public/catalog.js";
-import { AppError, validateOrder, productionWeek, cancellationReason } from "../lib/order-rules.js";
+import { AppError, validateOrder, productionWeek, cancellationReason, validateWeeklyLimit, weeklyLimitError } from "../lib/order-rules.js";
+
+const exceededWeeklyLimits = `SELECT * FROM (
+  SELECT json_extract(item.value,'$.name') AS name,
+    json_extract(item.value,'$.qty') AS requested, p.weekly_limit,
+    (SELECT COALESCE(SUM(json_extract(booked.value,'$.qty')),0)
+      FROM vb_orders o, json_each(o.items) booked
+      WHERE o.date BETWEEN ? AND ? AND o.status!='cancelled' AND o.demo=?
+        AND json_extract(booked.value,'$.id')=p.id)
+    + (CASE WHEN ?=0 THEN (
+      SELECT COALESCE(SUM(json_extract(old_item.value,'$.qty')),0)
+      FROM orders legacy, json_each(CASE WHEN legacy.pickup_date BETWEEN ? AND ? THEN legacy.order_items ELSE '[]' END) old_item
+      WHERE legacy.pickup_date BETWEEN ? AND ?
+        AND NOT EXISTS (SELECT 1 FROM vb_orders current WHERE current.id=legacy.order_number)
+        AND (json_extract(old_item.value,'$.id')=p.id OR
+          (json_extract(old_item.value,'$.id') IS NULL AND
+           lower(trim(json_extract(old_item.value,'$.name')))=lower(trim(json_extract(item.value,'$.name')))))
+    ) ELSE 0 END) AS booked
+  FROM json_each(?) item JOIN vb_products p ON p.id=json_extract(item.value,'$.id')
+  WHERE p.weekly_limit IS NOT NULL
+) WHERE booked + requested > weekly_limit`;
 
 export const digest = (value) =>
   createHash("sha256").update(value).digest("hex");
@@ -17,7 +37,7 @@ export function createD1Store(db, demo = true) {
   const mode = Number(demo);
   async function catalog() {
     const { results } = await db
-      .prepare("SELECT id,price,available FROM vb_products")
+      .prepare("SELECT id,price,available,weekly_limit FROM vb_products")
       .all();
     return PRODUCTS.map((p) => {
       const row = results.find((r) => r.id === p.id);
@@ -25,6 +45,7 @@ export function createD1Store(db, demo = true) {
         ...p,
         price: row?.price ?? p.price,
         available: Boolean(row?.available),
+        weeklyLimit: row?.weekly_limit ?? null,
       };
     });
   }
@@ -86,6 +107,7 @@ export function createD1Store(db, demo = true) {
       (demo ? "DEMO-" : "VB-") + randomBytes(12).toString("hex").toUpperCase();
     const items = JSON.stringify(order.items);
     const capacity = options.capacity ?? 120;
+    const quotaBindings = [start, end, mode, mode, start, end, start, end, items];
     const pickup = fulfillmentOptions(input.role, input.date).find(
       (o) => o.id === input.fulfillment,
     );
@@ -126,6 +148,7 @@ export function createD1Store(db, demo = true) {
    ) ELSE 0 END) + ? <= ?
    AND NOT EXISTS (SELECT 1 FROM json_each(?) AS item LEFT JOIN vb_products p ON p.id=json_extract(item.value,'$.id')
     WHERE p.id IS NULL OR p.available!=1 OR p.price!=json_extract(item.value,'$.price'))
+   AND NOT EXISTS (${exceededWeeklyLimits})
    ON CONFLICT(idempotency_key) DO NOTHING`,
       )
       .bind(
@@ -158,12 +181,15 @@ export function createD1Store(db, demo = true) {
         order.quantity,
         capacity,
         items,
+        ...quotaBindings,
       )
       .run();
     const saved = await existing();
     if (saved) return replay(saved);
     // Give a specific price/availability error when that caused the rejection.
     validateOrder(input, await catalog(), { ...options, now });
+    const exceeded = await db.prepare(exceededWeeklyLimits).bind(...quotaBindings).first();
+    if (exceeded) throw weeklyLimitError(exceeded.name, Math.max(0, exceeded.weekly_limit - exceeded.booked));
     throw new AppError(
       "La capacité de cette semaine est atteinte. Veuillez choisir une semaine ultérieure.",
       409,
@@ -239,11 +265,13 @@ export function createD1Store(db, demo = true) {
       throw new AppError(
         "Indiquez un prix entre 0,50 € et 50,00 € et une disponibilité valide.",
       );
+    const hasLimit = Object.hasOwn(patch, "weeklyLimit");
+    if (hasLimit) validateWeeklyLimit(patch.weeklyLimit);
     const result = await db
       .prepare(
-        "UPDATE vb_products SET price=?,available=? WHERE id=? RETURNING id",
+        "UPDATE vb_products SET price=?,available=?,weekly_limit=CASE WHEN ? THEN ? ELSE weekly_limit END WHERE id=? RETURNING id",
       )
-      .bind(patch.price, Number(patch.available), id)
+      .bind(patch.price, Number(patch.available), Number(hasLimit), hasLimit ? patch.weeklyLimit : null, id)
       .first();
     if (!result) throw new AppError("Produit introuvable.", 404);
   }

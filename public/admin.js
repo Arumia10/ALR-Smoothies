@@ -114,7 +114,7 @@ function renderProducts() {
   $("#admin-products").innerHTML = products
     .map(
       (p) =>
-        `<form class="product-edit" data-product="${p.id}" aria-label="Paramètres de ${p.name}"><h3>${p.name}</h3><label>Prix (€)<input type="number" name="price" min="0.50" max="50" step="0.01" value="${(p.price / 100).toFixed(2)}" required></label><label class="check-label"><input type="checkbox" name="available" ${p.available ? "checked" : ""}>Disponible à la commande</label><button class="button primary" type="submit">Enregistrer</button></form>`,
+        `<form class="product-edit" data-product="${p.id}" aria-label="Paramètres de ${p.name}"><h3>${p.name}</h3><label>Prix (€)<input type="number" name="price" min="0.50" max="50" step="0.01" value="${(p.price / 100).toFixed(2)}" required></label><label>Maximum par semaine (unités)<input type="number" name="weeklyLimit" min="0" max="10000" step="1" value="${p.weeklyLimit ?? ""}" placeholder="Sans limite" aria-describedby="limit-help-${p.id}"></label><p class="product-limit-help" id="limit-help-${p.id}">Vide : sans limite par produit. 0 : aucune nouvelle réservation.</p><label class="check-label"><input type="checkbox" name="available" ${p.available ? "checked" : ""}>Disponible à la commande</label><button class="button primary" type="submit">Enregistrer</button></form>`,
     )
     .join("");
 }
@@ -232,6 +232,7 @@ $("#admin-products").addEventListener("submit", async (e) => {
     await api(`admin/products/${f.dataset.product}`, "PATCH", {
       price: Math.round(Number(f.elements.price.value) * 100),
       available: f.elements.available.checked,
+      weeklyLimit: f.elements.weeklyLimit.value.trim() === "" ? null : Number(f.elements.weeklyLimit.value),
     });
     toast("Carte mise à jour.");
   } catch (e) {

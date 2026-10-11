@@ -243,3 +243,5 @@
 .cancel-dialog textarea { display: block; width: 100%; box-sizing: border-box; resize: vertical; margin-top: 10px; padding: 14px; border: 1px solid #a5b4a5; border-radius: 10px; background: #fff; color: var(--green); font: inherit; }
 .cancel-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
 .cancellation-reason { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.product-limit-help { font-size: 12px; color: var(--muted); margin: -8px 0 18px; line-height: 1.5; }
