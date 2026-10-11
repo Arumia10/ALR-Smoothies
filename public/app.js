@@ -46,7 +46,7 @@ function persist() {
   renderBag();
 }
 function productImage(p, thumbnail = false) {
-  const alt = thumbnail ? "" : escapeHTML(p.ingredients);
+  const alt = thumbnail ? "" : escapeHTML(p.imageAlt || p.ingredients);
   return `<img src="assets/${encodeURIComponent(p.image)}${p.category === "breakfast" ? "" : "?v=ingredients-20261009"}" alt="${alt}" width="${p.category === "breakfast" ? 1024 : 1448}" height="${p.category === "breakfast" ? 1024 : 1086}" loading="lazy">`;
 }
 function renderProducts() {
@@ -58,7 +58,7 @@ function renderProducts() {
     .filter((p) => filter === "all" || p.category === filter)
     .map(
       (p) =>
-        `<article class="product-card"><div class="product-art ${p.color}"><span class="product-tag">${p.category === "breakfast" ? "Petit-déjeuner" : p.category === "berries" ? "Fruits rouges" : p.category === "greens" ? "Tout vert" : "Tropical"}</span>${productImage(p)}</div><div class="product-body"><p class="product-note">${p.note}</p><h3>${p.name}</h3><p class="ingredients">${p.ingredients}</p><div class="product-bottom"><div class="price">${money(p.price)}<small>${escapeHTML(p.portion)}${p.preparation ? " · " + escapeHTML(p.preparation) : ""}</small></div><button class="add-button" data-add="${p.id}" aria-label="Ajouter ${p.name} au panier" ${!p.available ? "disabled" : ""}>${p.available ? "+" : "–"}</button></div>${!p.available ? '<p class="form-note">Momentanément indisponible</p>' : ""}</div></article>`,
+        `<article class="product-card"><div class="product-art ${p.color}"><span class="product-tag">${p.category === "shots" ? "Shot · 40 ml" : p.category === "breakfast" ? "Petit-déjeuner" : p.category === "berries" ? "Fruits rouges" : p.category === "greens" ? "Tout vert" : "Tropical"}</span>${productImage(p)}</div><div class="product-body"><p class="product-note">${p.note}</p><h3>${p.name}</h3><p class="ingredients">${p.ingredients}</p><div class="product-bottom"><div class="price">${money(p.price)}<small>${escapeHTML(p.portion)}${p.preparation ? " · " + escapeHTML(p.preparation) : ""}</small></div><button class="add-button" data-add="${p.id}" aria-label="Ajouter ${p.name} au panier" ${!p.available ? "disabled" : ""}>${p.available ? "+" : "–"}</button></div>${!p.available ? '<p class="form-note">Momentanément indisponible</p>' : ""}</div></article>`,
     )
     .join("");
 }
@@ -538,7 +538,7 @@ async function connect() {
       if (securityVisible()) prepareTurnstile();
     }
     const prices = products
-        .filter((p) => p.category !== "breakfast")
+        .filter((p) => ["berries", "tropical", "greens"].includes(p.category))
         .map((p) => p.price),
       same = prices.every((p) => p === prices[0]),
       lowest = Math.min(...prices);
@@ -546,6 +546,9 @@ async function connect() {
       `${same ? "" : "À partir de "}${money(lowest)} le verre`;
     $("#menu-price").textContent =
       `Smoothies · 330 ml · ${same ? "" : "à partir de "}${money(lowest)}`;
+    const shot = products.find((p) => p.id === "ginger-shot");
+    $("#shot-price").hidden = !shot;
+    if (shot) $("#shot-price").textContent = "Ginger Shot · 40 ml · " + money(shot.price);
     const jarPrices = products
       .filter((p) => p.category === "breakfast")
       .map((p) => p.price);

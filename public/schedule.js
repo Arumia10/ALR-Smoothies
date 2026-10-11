@@ -72,7 +72,7 @@ export function fulfillmentOptions(role, date) {
         {
           id: "delivery",
           label: "Livraison à l’école",
-          time: "Lundi",
+          time: "Lundi · 09 h 30 à 09 h 45",
         },
       ].filter((option) => day === 1 || option.id === "fridge")
     : [];

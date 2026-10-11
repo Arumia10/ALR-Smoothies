@@ -112,7 +112,22 @@ export const BREAKFAST_JARS = [
     available: true,
   },
 ];
-export const PRODUCTS = [...SMOOTHIES, ...BREAKFAST_JARS];
+export const SHOTS = [{
+  "id": "ginger-shot",
+  "name": "Ginger Shot",
+  "ingredients": "Gingembre, citron, orange, dattes, une pincée de sel",
+  "category": "shots",
+  "note": "Le goût du gingembre et des agrumes",
+  "color": "yellow",
+  "image": "ginger-shot.png",
+  "imageAlt": "Ginger Shot dans un petit bocal de 40 ml, avec gingembre, citron, orange, dattes et une pincée de sel",
+  "size": 40,
+  "portion": "40 ml",
+  "preparation": "",
+  "available": true,
+  "price": 100
+}];
+export const PRODUCTS = [...SMOOTHIES, ...SHOTS, ...BREAKFAST_JARS];
 export const money = (cents) =>
   new Intl.NumberFormat("fr-LU", { style: "currency", currency: "EUR" }).format(
     cents / 100,
