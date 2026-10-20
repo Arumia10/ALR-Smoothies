@@ -90,7 +90,10 @@
                 <option value="collected">Remise (retirée ou livrée)</option>
                 <option value="cancelled">Annulée</option>
               </select></label
-            ><button id="export" class="button secondary">
+            ><label>Date de retrait / livraison<input id="date-filter" type="date" /></label
+            ><button id="export-labels" class="button secondary" type="button">
+              Étiquettes Word de la sélection ↓
+            </button><button id="export" class="button secondary">
               Exporter la sélection CSV ↓
             </button>
           </div>
@@ -125,6 +128,20 @@
       </section>
     </main>
     <div id="admin-toast" role="status" class="toast"></div>
+    <dialog id="labels-dialog" class="cancel-dialog labels-dialog" aria-labelledby="labels-title">
+      <form id="labels-form">
+        <h2 id="labels-title">Étiquettes Word</h2>
+        <p id="labels-summary" aria-live="polite"></p>
+        <p>Une étiquette par article : nom du client, produit et point de retrait ou lieu de livraison. Les commandes annulées sont exclues.</p>
+        <p class="form-note">Papier A4 · 70 × 16,9 mm · 51 étiquettes (3 colonnes × 17 lignes).</p>
+        <label for="labels-start">Première étiquette libre sur la feuille</label>
+        <input id="labels-start" type="number" min="1" max="51" step="1" value="1" required aria-describedby="labels-help" />
+        <p id="labels-help" class="form-note">1 pour une feuille neuve. Comptez de gauche à droite, puis de haut en bas. Les feuilles suivantes commencent à la première étiquette.</p>
+        <p class="form-note">Dans Word : papier A4, impression à 100 % / taille réelle, sans ajustement. Faites d’abord un essai sur papier ordinaire pour vérifier l’alignement avec votre planche.</p>
+        <p id="labels-error" class="error" role="alert" hidden></p>
+        <div class="cancel-dialog-actions"><button type="button" id="labels-back" class="button secondary">Fermer</button><button type="submit" class="button primary">Télécharger le fichier Word ↓</button></div>
+      </form>
+    </dialog>
     <dialog id="cancel-dialog" class="cancel-dialog" aria-labelledby="cancel-title">
       <form id="cancel-form">
         <p class="eyebrow">ANNULATION</p>

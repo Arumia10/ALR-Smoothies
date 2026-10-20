@@ -245,3 +245,5 @@
 .cancellation-reason { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .product-limit-help { font-size: 12px; color: var(--muted); margin: -8px 0 18px; line-height: 1.5; }
+.labels-dialog p { font-size: 14px; line-height: 1.5; }
+.labels-dialog input { max-width: 120px; }

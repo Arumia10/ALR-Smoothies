@@ -96,7 +96,7 @@ async function handle(request, env, url, fetcher) {
     if (!["GET", "HEAD"].includes(request.method))
       throw new AppError("Méthode non autorisée.", 405);
     const allowed =
-      /^\/(?:index\.html|admin(?:\.html)?|styles\.css|admin\.css|app\.js|admin\.js|catalog\.js|schedule\.js|assets\/[a-zA-Z0-9 .%_-]+\.(?:jpg|png|svg))$/;
+      /^\/(?:index\.html|admin(?:\.html)?|styles\.css|admin\.css|app\.js|admin\.js|order-labels\.js|catalog\.js|schedule\.js|assets\/[a-zA-Z0-9 .%_-]+\.(?:jpg|png|svg))$/;
     let decoded;
     try {
       decoded = decodeURIComponent(path);

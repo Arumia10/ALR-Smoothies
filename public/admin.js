@@ -1,5 +1,6 @@
 import { money } from "./catalog.js";
 import { formatDate, fulfillmentOptions } from "./schedule.js";
+import { orderLabels, createLabelsDocx, LABELS_PER_SHEET } from "./order-labels.js";
 const $ = (s) => document.querySelector(s),
   escapeHTML = (v) =>
     String(v).replace(
@@ -39,6 +40,7 @@ let csrf = "",
   orders = [],
   products = [],
   toastTimer;
+let labelsPending = [], labelsFilename = "vitaminboost-etiquettes.docx";
 function error(e) {
   $("#admin-error").textContent = e.message;
   $("#admin-error").hidden = false;
@@ -77,6 +79,7 @@ function filtered() {
       (status === "all" || status === "active"
         ? !["collected", "cancelled"].includes(o.status) || status === "all"
         : o.status === status) &&
+      (!$("#date-filter").value || o.date === $("#date-filter").value) &&
       `${o.id} ${o.first_name} ${o.last_name} ${o.email}`
         .toLowerCase()
         .includes(text),
@@ -94,6 +97,7 @@ function renderOrders() {
       .reduce((s, o) => s + o.total, 0),
   );
   const list = filtered();
+  $("#export-labels").disabled = !list.some(o => o.status !== "cancelled");
   $("#admin-orders").innerHTML = list.length
     ? list
         .map((o) => {
@@ -105,7 +109,7 @@ function renderOrders() {
               preparing: ["ready", "Marquer comme prête"],
               ready: ["collected", o.fulfillment === "delivery" ? "Marquer comme livrée" : "Marquer comme retirée"],
             }[o.status];
-          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${paymentLabel[o.payment_status]}</span><p>${escapeHTML(o.status === "cancelled" ? (o.cancellation_email_status ? "Annulation · " + emailLabels[o.cancellation_email_status] : "") : (emailLabels[o.email_status] || ""))}</p>${o.cancellation_reason ? `<p class="cancellation-reason"><strong>Message au client :</strong><br>${escapeHTML(o.cancellation_reason)}</p>` : ""}<div class="order-actions">${o.status === "cancelled" && ["pending", "failed", "sending"].includes(o.cancellation_email_status) ? `<button class="button secondary" data-cancellation-email="${o.id}">Réessayer l’e-mail d’annulation</button>` : ""}${o.status !== "cancelled" && ["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">Enregistrer le paiement</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
+          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${paymentLabel[o.payment_status]}</span><p>${escapeHTML(o.status === "cancelled" ? (o.cancellation_email_status ? "Annulation · " + emailLabels[o.cancellation_email_status] : "") : (emailLabels[o.email_status] || ""))}</p>${o.cancellation_reason ? `<p class="cancellation-reason"><strong>Message au client :</strong><br>${escapeHTML(o.cancellation_reason)}</p>` : ""}<div class="order-actions">${o.status !== "cancelled" ? `<button type="button" class="button secondary" data-labels="${escapeHTML(o.id)}">Étiquettes Word ↓</button>` : ""}${o.status === "cancelled" && ["pending", "failed", "sending"].includes(o.cancellation_email_status) ? `<button class="button secondary" data-cancellation-email="${o.id}">Réessayer l’e-mail d’annulation</button>` : ""}${o.status !== "cancelled" && ["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">Enregistrer le paiement</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
         })
         .join("")
     : '<div class="admin-empty"><h3>Aucune commande à afficher.</h3><p>Aucune commande ne correspond à cette sélection. Actualisez pour rechercher de nouvelles commandes.</p></div>';
@@ -162,6 +166,8 @@ $("#logout").addEventListener("click", async () => {
     await api("admin/logout", "POST", {});
     csrf = "";
     orders = [];
+    labelsPending = [];
+    $("#labels-dialog").close();
     $("#admin-orders").replaceChildren();
     $("#legacy-orders").replaceChildren();
     $("#dashboard").hidden = true;
@@ -181,6 +187,7 @@ $("#refresh").addEventListener("click", async () => {
 });
 $("#search").addEventListener("input", renderOrders);
 $("#status-filter").addEventListener("change", renderOrders);
+$("#date-filter").addEventListener("change", renderOrders);
 for (const tab of ["orders", "products"])
   $(`#${tab}-tab`).addEventListener("click", () => {
     for (const name of ["orders", "products"]) {
@@ -380,4 +387,53 @@ $("#admin-orders").addEventListener("click", async (event) => {
     await refresh();
   } catch (e) { error(e); }
   finally { button.disabled = false; }
+});
+
+function updateLabelsSummary() {
+  const start = Number($("#labels-start").value);
+  const pages = Math.ceil((labelsPending.length + (start >= 1 && start <= 51 ? start - 1 : 0)) / LABELS_PER_SHEET);
+  $("#labels-summary").textContent = `${labelsPending.length} étiquette${labelsPending.length > 1 ? "s" : ""} · ${pages} feuille${pages > 1 ? "s" : ""} A4`;
+}
+function openLabels(selected, filename) {
+  try {
+    labelsPending = orderLabels(selected);
+    if (!labelsPending.length) throw new Error("Aucune étiquette à télécharger. Les commandes annulées sont exclues.");
+    labelsFilename = filename;
+    $("#labels-start").value = "1";
+    $("#labels-error").hidden = true;
+    updateLabelsSummary();
+    $("#labels-dialog").showModal();
+    $("#labels-start").focus();
+  } catch (e) { error(e); }
+}
+$("#export-labels").addEventListener("click", () => {
+  openLabels(filtered(), `vitaminboost-etiquettes${$("#date-filter").value ? "-" + $("#date-filter").value : ""}.docx`);
+});
+$("#admin-orders").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-labels]");
+  if (!button) return;
+  const order = orders.find(o => o.id === button.dataset.labels);
+  if (order) openLabels([order], `vitaminboost-etiquettes-${order.id.replace(/[^a-zA-Z0-9_-]/g, "-")}.docx`);
+});
+$("#labels-start").addEventListener("input", updateLabelsSummary);
+$("#labels-back").addEventListener("click", () => $("#labels-dialog").close());
+$("#labels-dialog").addEventListener("close", () => { labelsPending = []; });
+$("#labels-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  try {
+    const blob = createLabelsDocx(labelsPending, Number($("#labels-start").value));
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = labelsFilename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    $("#labels-dialog").close();
+    toast("Fichier Word téléchargé. Imprimez en A4 à 100 %.");
+  } catch (e) {
+    $("#labels-error").textContent = e.message;
+    $("#labels-error").hidden = false;
+  }
 });
