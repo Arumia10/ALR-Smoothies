@@ -5,6 +5,7 @@ import { createWorker } from "../cloudflare/worker.js";
 
 const order = {
   id: "VB-EXEMPLE", first_name: "Léa", last_name: "Müller", status: "received",
+  date: "2026-10-26", created_at: "2026-10-20T12:00:00Z",
   fulfillment: "staff", items: [{ name: "Red Berries", qty: 2 }, { name: "Ginger Shot", qty: 3 }],
 };
 test("Cloudflare serves the new label module while keeping application sources private", async () => {
@@ -22,11 +23,17 @@ test("one label per unit, cancelled orders excluded, test orders clearly marked"
   assert.equal(labels.filter(l => l.product === "Red Berries").length, 4);
   assert.equal(labels[0].name, "Léa Müller");
   assert.equal(labels[0].destination, "Retrait : Proffen Konferenz");
+  assert.ok(labels.every(label => label.date === "Date : 26/10/2026"));
+  assert.equal((labelsDocumentXml(labels).match(/Date : 26\/10\/2026/g) || []).length, 10);
   assert.equal(labels[0].demo, false);
   assert.equal(labels[9].demo, true);
   assert.match(labelsDocumentXml(labels), /TEST · Ginger Shot/);
 });
 test("labels preserve pickup and custom staff/teacher delivery destinations", () => {
+  const dated = orderLabels([order, { ...order, fulfillment: "delivery", date: "2026-11-02" }]);
+  assert.equal(dated[0].date, "Date : 26/10/2026");
+  assert.equal(dated[5].date, "Date : 02/11/2026");
+  assert.equal(orderLabels([{ ...order, date: undefined }])[0].date, "Date non précisée");
   assert.equal(labelDestination({ fulfillment: "library" }), "Retrait : Devant la bibliothèque");
   assert.equal(labelDestination({ fulfillment: "fridge" }), "Retrait : Frigo à l’extérieur du Proffenkonferenz");
   for (const room of ["Service technique", "Secrétariat élèves", "Direction", "Bâtiment A · salle 202"]) {

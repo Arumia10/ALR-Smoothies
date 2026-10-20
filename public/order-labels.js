@@ -3,6 +3,12 @@ export const DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordproc
 const clean = (value) => String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
 const xml = (value) => clean(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]);
 
+function labelDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(clean(value));
+  if (!match) return "Date non précisée";
+  return `Date : ${match[3]}/${match[2]}/${match[1]}`;
+}
+
 export function labelDestination(order) {
   const room = clean(order.room);
   if (order.fulfillment === "delivery") return `Livraison : ${room || "À l’école"}`;
@@ -27,6 +33,7 @@ export function orderLabels(orders) {
         name: clean(`${order.first_name || ""} ${order.last_name || ""}`),
         product: clean(item.name),
         destination: labelDestination(order),
+        date: labelDate(order.date),
         demo: Boolean(order.demo),
       });
     }
@@ -65,6 +72,7 @@ function labelParagraphs(label) {
       [label.name, size, true],
       [(label.demo ? "TEST · " : "") + label.product, size - 0.5, false],
       [label.destination, size - 1, false],
+      [label.date || "Date non précisée", size - 1, false],
     ];
     lines = fields.flatMap(([text, fontSize, bold]) => wrap(text, fontSize, bold).map(text => ({ text, fontSize, bold })));
     if (lines.reduce((height, line) => height + line.fontSize + 1, 0) <= 40) break;
