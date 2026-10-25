@@ -282,7 +282,7 @@
               Comment payer ma commande ?<span aria-hidden="true">+</span>
             </summary>
             <p>
-              Le paiement se fait à la remise de la commande. Scannez le QR code Wero et
+              Vous pouvez payer avec Wero lors de la commande ou à sa remise. Scannez le QR code Wero et
               indiquez le montant de votre commande. L’équipe vérifie le
               paiement lors du retrait ou de la livraison.
             </p>
@@ -484,6 +484,23 @@
               sera effectué et aucun produit ne sera préparé.
             </p>
           </div>
+          <fieldset id="checkout-payment-choice" class="checkout-payment-choice" hidden>
+            <legend>Comment souhaitez-vous payer ?</legend>
+            <label class="pickup-choice"><input type="radio" name="paymentMethod" value="collection" checked><span>À la remise de la commande</span></label>
+            <label class="pickup-choice"><input type="radio" name="paymentMethod" value="wero"><span>Maintenant avec Wero</span></label>
+          </fieldset>
+          <section id="checkout-wero" class="checkout-wero" aria-labelledby="checkout-wero-title" hidden>
+            <h3 id="checkout-wero-title">Payer avec Wero</h3>
+            <p>Montant à saisir : <strong id="checkout-wero-total"></strong><br>Bénéficiaire : <strong>2TPCM Mini-entreprise</strong></p>
+            <div class="wero-desktop">
+              <p>Scannez le QR code avec votre téléphone.</p>
+              <img class="wero-qr" src="assets/wero-qr.png" width="670" height="807" alt="QR code Wero pour payer 2TPCM Mini-entreprise">
+            </div>
+            <a id="checkout-wero-link" class="button primary wero-mobile" href="https://wero-checkout.prod-pci.buckaroo.io/?wero-context=eyJzIjoic180NmlSMjN2MCIsImQiOiIyVFBDTSBNaW5pLWVudHJlcHJpc2UiLCJyIjoiMlRQQ00gTWluaS1lbnRyZXByaXNlIn0" target="_blank" rel="noopener noreferrer">Payer avec Wero ↗</a>
+            <details class="wero-desktop wero-link-fallback"><summary>Ouvrir le lien Wero</summary><p><a href="https://wero-checkout.prod-pci.buckaroo.io/?wero-context=eyJzIjoic180NmlSMjN2MCIsImQiOiIyVFBDTSBNaW5pLWVudHJlcHJpc2UiLCJyIjoiMlRQQ00gTWluaS1lbnRyZXByaXNlIn0" target="_blank" rel="noopener noreferrer">Ouvrir Wero dans un nouvel onglet ↗</a></p></details>
+            <p>Indiquez le montant exact et, si Wero vous le propose, votre nom en communication. Après le paiement, revenez dans cet onglet et cliquez sur « J’ai effectué le paiement — confirmer ma commande ».</p>
+            <p class="form-note">L’ouverture de Wero ne confirme pas la commande. Votre déclaration de paiement sera vérifiée par l’équipe.</p>
+          </section>
           <label class="check-label">
             <input type="checkbox" id="weekly-reminder" name="weeklyReminder" checked aria-describedby="weekly-reminder-note" />
             <span>Recevoir un rappel chaque dimanche à 10 h pour commander.</span>
@@ -537,7 +554,7 @@
       <p>
         Pour gérer votre commande, nous recueillons votre nom, votre adresse
         e-mail, votre profil à l’école, les produits choisis et les informations
-        de retrait. Seul le panier est mémorisé dans ce navigateur, sans vos
+        de retrait, ainsi que votre éventuelle déclaration de paiement Wero. Seul le panier est mémorisé dans ce navigateur, sans vos
         coordonnées. Nous n’utilisons pas de traceurs publicitaires.
       </p>
       <p>

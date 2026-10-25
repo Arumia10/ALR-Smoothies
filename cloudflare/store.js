@@ -33,6 +33,7 @@ const receipt = (o) => ({
   date: o.date,
   demo: Boolean(o.demo),
   paymentStatus: o.payment_status || "unpaid",
+  paymentDeclared: Boolean(o.payment_declared),
 });
 export function createD1Store(db, demo = true) {
   const mode = Number(demo);
@@ -69,7 +70,7 @@ export function createD1Store(db, demo = true) {
           "Cette demande a déjà été utilisée pour une autre commande.",
           409,
         );
-      return receipt(o);
+      return receipt({ ...o, payment_declared: input.paymentDeclared === true });
     };
     const prior = await existing();
     if (prior) return replay(prior);
@@ -184,16 +185,16 @@ export function createD1Store(db, demo = true) {
         items,
         ...quotaBindings,
       );
-    if (!demo && typeof input.weeklyReminder === "boolean") {
-      await db.batch([
-        insertOrder,
-        db.prepare(reminderPreferenceSQL("vb_orders")).bind(
-          ...reminderPreferenceBindings(order.email, order.first, input.weeklyReminder, id, now),
-        ),
-      ]);
-    } else {
-      await insertOrder.run();
-    }
+    const writes = [insertOrder];
+    if (!demo && typeof input.weeklyReminder === "boolean")
+      writes.push(db.prepare(reminderPreferenceSQL("vb_orders")).bind(
+        ...reminderPreferenceBindings(order.email, order.first, input.weeklyReminder, id, now),
+      ));
+    if (order.paymentDeclared)
+      writes.push(db.prepare(`INSERT INTO vb_payment_declarations(order_id,method,amount,declared_at)
+        SELECT id,'wero',total,created_at FROM vb_orders WHERE id=?`).bind(id));
+    if (writes.length > 1) await db.batch(writes);
+    else await insertOrder.run();
     const saved = await existing();
     if (saved) return replay(saved);
     // Give a specific price/availability error when that caused the rejection.
@@ -208,7 +209,7 @@ export function createD1Store(db, demo = true) {
   async function list() {
     const { results } = await db
       .prepare(
-        "SELECT id,first_name,last_name,email,role,date,fulfillment,room,total,quantity,items,status,payment_status,demo,created_at,(SELECT status FROM vb_email_outbox WHERE order_id=vb_orders.id) AS email_status,(SELECT reason FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_reason,(SELECT CASE WHEN payload IS NOT NULL THEN status END FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_email_status FROM vb_orders WHERE demo=? ORDER BY created_at DESC LIMIT 1000",
+        "SELECT id,first_name,last_name,email,role,date,fulfillment,room,total,quantity,items,status,payment_status,demo,created_at,(SELECT declared_at FROM vb_payment_declarations WHERE order_id=vb_orders.id) AS payment_declared_at,(SELECT status FROM vb_email_outbox WHERE order_id=vb_orders.id) AS email_status,(SELECT reason FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_reason,(SELECT CASE WHEN payload IS NOT NULL THEN status END FROM vb_cancellation_emails WHERE order_id=vb_orders.id) AS cancellation_email_status FROM vb_orders WHERE demo=? ORDER BY created_at DESC LIMIT 1000",
       )
       .bind(mode)
       .all();
@@ -217,7 +218,7 @@ export function createD1Store(db, demo = true) {
   async function updateOrder(id, patch, emailConfig) {
     const order = await db
       .prepare(
-        "SELECT * FROM vb_orders WHERE id=? AND demo=?",
+        "SELECT *,EXISTS(SELECT 1 FROM vb_payment_declarations WHERE order_id=vb_orders.id) AS payment_declared FROM vb_orders WHERE id=? AND demo=?",
       )
       .bind(id, mode)
       .first();

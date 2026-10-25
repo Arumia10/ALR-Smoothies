@@ -184,7 +184,7 @@ test("HTML names are escaped and the checkout sends the current optional checkbo
   assert.ok(html.indexOf('id="weekly-reminder"')<html.indexOf('id="place-order"'));
   const code=readFileSync(new URL("../public/app.js",import.meta.url),"utf8");
   const checkbox={checked:true};
-  const context=vm.createContext({$:()=>checkbox,form:{},FormData:class{get(name){return {firstName:"Test",lastName:"Customer",email:"test@example.invalid",fulfillment:"staff"}[name]??"";}},cartLines:()=>[],total:()=>0});
+  const context=vm.createContext({wantsWero:()=>false,$:()=>checkbox,form:{},FormData:class{get(name){return {firstName:"Test",lastName:"Customer",email:"test@example.invalid",fulfillment:"staff"}[name]??"";}},cartLines:()=>[],total:()=>0});
   vm.runInContext(code.slice(code.indexOf("function details()"),code.indexOf("function fulfillmentText")),context);
   assert.equal(vm.runInContext("details().weeklyReminder",context),true);
   checkbox.checked=false;assert.equal(vm.runInContext("details().weeklyReminder",context),false);

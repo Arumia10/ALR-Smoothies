@@ -1830,3 +1830,28 @@ legend {
   clip-path: none;
   mix-blend-mode: normal;
 }
+
+.checkout-payment-choice {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin: 0 0 22px;
+  padding: 16px;
+}
+.checkout-payment-choice legend { font-weight: 700; padding: 0 6px; }
+.checkout-payment-choice .pickup-choice + .pickup-choice { margin-top: 10px; }
+.checkout-wero {
+  border: 1px solid var(--line);
+  background: var(--white);
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+.checkout-wero h3 { margin-top: 0; }
+.checkout-wero p { line-height: 1.6; }
+.checkout-wero .wero-qr { display: block; width: min(230px,100%); height: auto; margin: 18px auto; }
+.wero-link-fallback { margin: 14px 0; }
+.wero-mobile { display: none; }
+@media (max-width: 760px), (pointer: coarse) {
+  .checkout-wero .wero-desktop { display: none; }
+  .checkout-wero .wero-mobile { display: inline-flex; }
+}

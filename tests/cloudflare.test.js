@@ -622,6 +622,17 @@ test("Cloudflare Worker and D1 integration", async (t) => {
       );
     },
   );
+  await t.test("Wero checkout returns confirmation but leaves payment for team verification", async () => {
+    const res = await place(payload({paymentMethod:"wero",paymentDeclared:true}));
+    assert.equal(res.status,201);
+    const receipt = await res.json();
+    assert.equal(receipt.paymentStatus,"unpaid");assert.equal(receipt.paymentDeclared,true);assert.equal(receipt.emailStatus,"sent");
+    const claim = await DB.prepare("SELECT * FROM vb_payment_declarations WHERE order_id=?").bind(receipt.reference).first();
+    assert.equal(claim.amount,350);
+    await login();
+    const list = await (await request("/api/admin/orders",{headers:{Cookie:cookie}})).json();
+    assert.ok(list.orders.find(o=>o.id===receipt.reference).payment_declared_at);
+  });
   await t.test("live checkout persists reminders in D1 and scheduled handler sends only once", async () => {
     const result = await place(payload({ weeklyReminder: true }));
     assert.equal(result.status, 201);

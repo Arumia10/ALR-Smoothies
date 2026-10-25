@@ -12,7 +12,7 @@ function fixture(t) {
   const sql = new DatabaseSync(':memory:');
   t.after(() => sql.close());
   sql.exec('PRAGMA foreign_keys=ON');
-  for (const file of ['0001_legacy_compatibility.sql', '0002_cherry_berry_unavailable.sql', '0003_cancellation_emails.sql', '0004_ginger_shot.sql', '0005_product_weekly_limits.sql'])
+  for (const file of ['0001_legacy_compatibility.sql', '0002_cherry_berry_unavailable.sql', '0003_cancellation_emails.sql', '0004_ginger_shot.sql', '0005_product_weekly_limits.sql', '0007_wero_payment_declarations.sql'])
     sql.exec(readFileSync(new URL('../migrations-legacy/' + file, import.meta.url), 'utf8'));
   const db = {
     prepare(query) {

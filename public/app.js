@@ -136,6 +136,8 @@ function details() {
     items: cartLines().map((p) => ({ id: p.id, qty: p.qty })),
     expectedTotal: total(),
     weeklyReminder: $("#weekly-reminder").checked,
+    paymentMethod: wantsWero() ? "wero" : "collection",
+    paymentDeclared: wantsWero(),
   };
 }
 function fulfillmentText(data) {
@@ -304,6 +306,15 @@ $("#security-retry").addEventListener("click", () => {
   if (!submitting) prepareTurnstile();
 });
 checkout.addEventListener("close", stopTurnstile);
+function wantsWero() {
+  return service?.demo === false && form.elements.paymentMethod?.value === "wero";
+}
+function updatePaymentChoice() {
+  $("#checkout-payment-choice").hidden = service?.demo !== false;
+  $("#checkout-wero").hidden = !wantsWero();
+  $("#checkout-wero-total").textContent = money(total());
+  if (!submitting) resetSubmit();
+}
 function resetSubmit() {
   submitting = false;
   $("#place-order").disabled = Boolean(
@@ -311,7 +322,7 @@ function resetSubmit() {
   );
   $("#place-order").textContent =
     service?.demo === false
-      ? "Valider la commande →"
+      ? wantsWero() ? "J’ai effectué le paiement — confirmer ma commande" : "Valider la commande →"
       : "Valider la commande de test →";
 }
 async function submitOrder() {
@@ -367,8 +378,8 @@ async function submitOrder() {
     form.hidden = true;
     $(".checkout-steps").hidden = true;
     $("#order-success").innerHTML =
-      `<span class="success-symbol" aria-hidden="true">✓</span><h3>${result.demo ? "Votre test est enregistré." : "Votre commande est enregistrée."}</h3><p>${result.demo ? "Il s’agit d’une commande de test. Aucun paiement n’a été effectué et aucun produit ne sera préparé." : "Votre commande a été enregistrée. Le paiement s’effectue à la remise de la commande."}</p><div class="review-summary"><div class="review-line"><span>Référence de commande</span><strong>${escapeHTML(result.reference)}</strong></div><div class="review-line"><span>Total</span><strong>${money(result.total)}</strong></div><hr><p><strong>${formatDate(result.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p></div><p>Conservez votre référence de commande.</p><section class="jar-return" aria-labelledby="jar-return-title"><h4 id="jar-return-title">Rapportez vos bocaux</h4><p>Après votre smoothie ou votre breakfast jar, rincez brièvement le bocal et son couvercle. Déposez-les ensuite dans les bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz.</p><img src="assets/retour-bocaux.jpg" alt="Le bac vert où déposer les bocaux et leurs couvercles après les avoir rincés" width="3678" height="2856" loading="lazy"></section><button class="button primary full" id="finish-order">Retour à la carte <span aria-hidden="true">↗</span></button>`;
-    if (!result.demo) {
+      `<span class="success-symbol" aria-hidden="true">✓</span><h3>${result.demo ? "Votre test est enregistré." : "Votre commande est enregistrée."}</h3><p>${result.demo ? "Il s’agit d’une commande de test. Aucun paiement n’a été effectué et aucun produit ne sera préparé." : result.paymentDeclared ? "Votre commande est confirmée. Vous avez déclaré avoir payé avec Wero ; l’équipe vérifiera le paiement. Ne payez pas une deuxième fois." : "Votre commande a été enregistrée. Le paiement s’effectue à la remise de la commande."}</p><div class="review-summary"><div class="review-line"><span>Référence de commande</span><strong>${escapeHTML(result.reference)}</strong></div><div class="review-line"><span>Total</span><strong>${money(result.total)}</strong></div><hr><p><strong>${formatDate(result.date)}</strong></p><p>${escapeHTML(fulfillmentText(data))}</p></div><p>Conservez votre référence de commande.</p><section class="jar-return" aria-labelledby="jar-return-title"><h4 id="jar-return-title">Rapportez vos bocaux</h4><p>Après votre smoothie ou votre breakfast jar, rincez brièvement le bocal et son couvercle. Déposez-les ensuite dans les bacs verts à côté du réfrigérateur, à l’extérieur du Proffenkonferenz.</p><img src="assets/retour-bocaux.jpg" alt="Le bac vert où déposer les bocaux et leurs couvercles après les avoir rincés" width="3678" height="2856" loading="lazy"></section><button class="button primary full" id="finish-order">Retour à la carte <span aria-hidden="true">↗</span></button>`;
+    if (!result.demo && !result.paymentDeclared) {
       const payment = document.createElement("details");
       payment.innerHTML =
         '<summary>Payer avec Wero à la remise de la commande</summary><p>Scannez ce code et indiquez le total de votre commande. Le paiement sera vérifié par l’équipe.</p><img class="wero-qr" src="assets/wero-qr.png" width="670" height="807" alt="QR code Wero de VitaminBoost">';
@@ -394,6 +405,8 @@ async function submitOrder() {
         : e.name === "TypeError"
           ? "Connexion impossible. Vérifiez votre connexion et réessayez."
           : e.message;
+    if (data.paymentDeclared)
+      error.textContent += " Si vous avez déjà payé avec Wero, ne payez pas une deuxième fois. Si votre commande ne peut pas être enregistrée, contactez order@vitaminboostalr.com avec la confirmation de paiement.";
     error.hidden = false;
     stopTurnstile();
   } finally {
@@ -478,6 +491,7 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   if (!form.reportValidity()) return;
   renderReview(details());
+  updatePaymentChoice();
   $("#details-step").hidden = true;
   $("#review-step").hidden = false;
   $("#review-consent").checked = false;
@@ -489,6 +503,7 @@ form.addEventListener("submit", (e) => {
 });
 $("#back-details").addEventListener("click", showDetails);
 $("#place-order").addEventListener("click", submitOrder);
+$("#checkout-payment-choice").addEventListener("change", updatePaymentChoice);
 document.addEventListener("click", (e) => {
   if (e.target.closest(".close-dialog")) {
     const d = e.target.closest("dialog");
@@ -563,10 +578,10 @@ async function connect() {
       $("#privacy-preview").hidden = true;
       $("#wero-preview-note").hidden = true;
       $("#preview-indicator").hidden = true;
-      $("#payment-title").textContent = "Paiement à la remise de la commande";
+      $("#payment-title").textContent = "Choisissez votre mode de paiement";
       $("#payment-copy").textContent =
-        "Votre commande est réservée. Le paiement s’effectue à la remise de la commande ; aucun paiement n’est validé en ligne.";
-      resetSubmit();
+        "Payez avec Wero maintenant ou à la remise de la commande. Votre commande sera enregistrée après validation ci-dessous.";
+      updatePaymentChoice();
     }
     if (!service.orderingOpen) {
       $("#preview-indicator").textContent =

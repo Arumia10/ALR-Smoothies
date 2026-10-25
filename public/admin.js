@@ -23,6 +23,9 @@ const statusLabel = {
   cancelled: "Annulée",
 };
 const paymentLabel = { paid: "Payé", unpaid: "À payer" };
+const orderPaymentLabel = order => order.payment_status === "paid"
+  ? "Payé"
+  : order.payment_declared_at ? "Wero déclaré · à vérifier" : "À payer";
 const collectionLabel = {
   library: "Devant la bibliothèque",
   staff: "Proffen Konferenz",
@@ -109,7 +112,7 @@ function renderOrders() {
               preparing: ["ready", "Marquer comme prête"],
               ready: ["collected", o.fulfillment === "delivery" ? "Marquer comme livrée" : "Marquer comme retirée"],
             }[o.status];
-          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${paymentLabel[o.payment_status]}</span><p>${escapeHTML(o.status === "cancelled" ? (o.cancellation_email_status ? "Annulation · " + emailLabels[o.cancellation_email_status] : "") : (emailLabels[o.email_status] || ""))}</p>${o.cancellation_reason ? `<p class="cancellation-reason"><strong>Message au client :</strong><br>${escapeHTML(o.cancellation_reason)}</p>` : ""}<div class="order-actions">${o.status !== "cancelled" ? `<button type="button" class="button secondary" data-labels="${escapeHTML(o.id)}">Étiquettes Word ↓</button>` : ""}${o.status === "cancelled" && ["pending", "failed", "sending"].includes(o.cancellation_email_status) ? `<button class="button secondary" data-cancellation-email="${o.id}">Réessayer l’e-mail d’annulation</button>` : ""}${o.status !== "cancelled" && ["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">Enregistrer le paiement</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
+          return `<article class="admin-order"><div><p class="ref">${escapeHTML(o.id)}</p><h3>${escapeHTML(o.first_name)} ${escapeHTML(o.last_name)}</h3><p>${escapeHTML(o.email)}</p><p>${escapeHTML(roleLabel[o.role] || o.role)} · ${formatDate(o.date)}</p><p>${escapeHTML(fulfillment?.label || collectionLabel[o.fulfillment] || o.fulfillment)}${o.room ? " · " + escapeHTML(o.room) : ""}<br>${escapeHTML(fulfillment?.time || "")}</p></div><div><ul class="items-list">${o.items.map((i) => `<li>${i.qty} × ${escapeHTML(i.name)} <strong>${money(i.price * i.qty)}</strong></li>`).join("")}</ul><strong>${money(o.total)}</strong></div><div><span class="status-chip">${statusLabel[o.status]}</span><span class="status-chip ${o.payment_status}">${orderPaymentLabel(o)}</span><p>${escapeHTML(o.status === "cancelled" ? (o.cancellation_email_status ? "Annulation · " + emailLabels[o.cancellation_email_status] : "") : (emailLabels[o.email_status] || ""))}</p>${o.cancellation_reason ? `<p class="cancellation-reason"><strong>Message au client :</strong><br>${escapeHTML(o.cancellation_reason)}</p>` : ""}<div class="order-actions">${o.status !== "cancelled" ? `<button type="button" class="button secondary" data-labels="${escapeHTML(o.id)}">Étiquettes Word ↓</button>` : ""}${o.status === "cancelled" && ["pending", "failed", "sending"].includes(o.cancellation_email_status) ? `<button class="button secondary" data-cancellation-email="${o.id}">Réessayer l’e-mail d’annulation</button>` : ""}${o.status !== "cancelled" && ["pending", "failed", "sending"].includes(o.email_status) ? `<button class="button secondary" data-email="${o.id}">Réessayer l’e-mail</button>` : ""}${next ? `<button class="button primary" data-order="${o.id}" data-status="${next[0]}">${next[1]} →</button>` : ""}${o.payment_status === "unpaid" && o.status !== "cancelled" ? `<button class="button secondary" data-order="${o.id}" data-paid="true">${o.payment_declared_at ? "Vérifier et enregistrer le paiement Wero" : "Enregistrer le paiement"}</button>` : ""}${!["collected", "cancelled"].includes(o.status) ? `<button class="cancel" data-order="${o.id}" data-status="cancelled">Annuler la commande</button>` : ""}</div></div></article>`;
         })
         .join("")
     : '<div class="admin-empty"><h3>Aucune commande à afficher.</h3><p>Aucune commande ne correspond à cette sélection. Actualisez pour rechercher de nouvelles commandes.</p></div>';
@@ -205,7 +208,7 @@ $("#admin-orders").addEventListener("click", async (e) => {
     $("#cancel-form").reset();
     $("#cancel-form").dataset.order = order.id;
     $("#cancel-customer").textContent = order.id + " · " + order.first_name + " " + order.last_name;
-    $("#cancel-paid").hidden = order.payment_status !== "paid";
+    $("#cancel-paid").hidden = order.payment_status !== "paid" && !order.payment_declared_at;
     $("#cancel-preview").hidden = !order.demo;
     $("#cancel-error").hidden = true;
     $("#cancel-dialog").showModal();
@@ -280,7 +283,7 @@ $("#export").addEventListener("click", () => {
       o.items.map((i) => `${i.qty} x ${i.name}`).join("; "),
       (o.total / 100).toFixed(2),
       statusLabel[o.status],
-      paymentLabel[o.payment_status],
+      orderPaymentLabel(o),
       o.demo ? "Oui" : "Non",
     ]),
   ];
