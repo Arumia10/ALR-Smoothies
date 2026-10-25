@@ -6,6 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
+  "triggers": { "crons": ["* 8-21 * * SUN"] },
   "routes": [
   {
     "pattern": "vitaminboostalr.com",
