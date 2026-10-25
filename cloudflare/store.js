@@ -1,3 +1,4 @@
+import { reminderPreferenceSQL, reminderPreferenceBindings } from "../lib/reminder-preferences.js";
 import { randomBytes, createHash } from "node:crypto";
 import { fulfillmentOptions } from "../public/schedule.js";
 import { buildConfirmation, buildCancellation } from "./integrations.js";
@@ -136,7 +137,7 @@ export function createD1Store(db, demo = true) {
         : null;
     // One atomic SQLite statement: capacity, price, availability and insertion
     // are checked together even across concurrent requests in different isolates.
-    await db
+    const insertOrder = db
       .prepare(
         `INSERT INTO vb_orders(id,idempotency_key,request_hash,first_name,last_name,email,role,date,fulfillment,room,total,quantity,items,demo,created_at,delivery_location,legacy_items,mail_payload)
    SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
@@ -182,8 +183,17 @@ export function createD1Store(db, demo = true) {
         capacity,
         items,
         ...quotaBindings,
-      )
-      .run();
+      );
+    if (!demo && typeof input.weeklyReminder === "boolean") {
+      await db.batch([
+        insertOrder,
+        db.prepare(reminderPreferenceSQL("vb_orders")).bind(
+          ...reminderPreferenceBindings(order.email, order.first, input.weeklyReminder, id, now),
+        ),
+      ]);
+    } else {
+      await insertOrder.run();
+    }
     const saved = await existing();
     if (saved) return replay(saved);
     // Give a specific price/availability error when that caused the rejection.

@@ -135,6 +135,7 @@ function details() {
     website: data.get("website"),
     items: cartLines().map((p) => ({ id: p.id, qty: p.qty })),
     expectedTotal: total(),
+    weeklyReminder: $("#weekly-reminder").checked,
   };
 }
 function fulfillmentText(data) {

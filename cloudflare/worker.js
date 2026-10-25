@@ -1,3 +1,4 @@
+import { runWeeklyReminders, unsubscribePage } from "./reminders.js";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { Buffer } from "node:buffer";
 import { createD1Store, digest } from "./store.js";
@@ -75,7 +76,7 @@ function secureResponse(response, url) {
   const headers = new Headers(response.headers);
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
-  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  if (!headers.has("Referrer-Policy")) headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   headers.set(
     "Content-Security-Policy",
@@ -91,6 +92,8 @@ function secureResponse(response, url) {
 }
 async function handle(request, env, url, fetcher) {
   const path = url.pathname;
+  if (path.startsWith("/api/reminders/unsubscribe/"))
+    return unsubscribePage(request, env, path.slice("/api/reminders/unsubscribe/".length));
   // Serve only the published frontend. No application source or database is an asset.
   if (!path.startsWith("/api/")) {
     if (!["GET", "HEAD"].includes(request.method))
@@ -335,6 +338,10 @@ async function handle(request, env, url, fetcher) {
 }
 export function createWorker(fetcher = fetch) {
   return {
+    async scheduled(controller, env) {
+      const result = await runWeeklyReminders(env, fetcher, { time: controller.scheduledTime });
+      console.log("Weekly reminders:", JSON.stringify(result));
+    },
     async fetch(request, env) {
       const url = new URL(request.url);
       try {

@@ -5,7 +5,9 @@ import assert from "node:assert/strict";
 import { randomUUID, scryptSync } from "node:crypto";
 import { createTestHarness } from "wrangler";
 import { availableDates } from "../public/schedule.js";
+import { PRODUCTS } from "../public/catalog.js";
 import { createD1Store } from "../cloudflare/store.js";
+import { createWorker } from "../cloudflare/worker.js";
 
 const origin = "https://vitaminboost.test";
 const password = "fictional-password-cloudflare-test-only";
@@ -106,6 +108,8 @@ test("Cloudflare Worker and D1 integration", async (t) => {
     });
   const clear = () =>
     DB.batch([
+      DB.prepare("DELETE FROM vb_weekly_reminders"),
+      DB.prepare("DELETE FROM vb_reminder_subscriptions"),
       DB.prepare("DELETE FROM vb_cancellation_emails"),
       DB.prepare("DELETE FROM vb_email_outbox"),
       DB.prepare("DELETE FROM vb_orders"),
@@ -156,7 +160,7 @@ test("Cloudflare Worker and D1 integration", async (t) => {
         assert.equal((await request(path)).status, 404, path);
       assert.equal((await request("/api/admin/orders")).status, 401);
       const menu = await (await request("/api/catalog")).json();
-      assert.equal(menu.products.length, 10);
+      assert.equal(menu.products.length, PRODUCTS.length);
       assert.equal(menu.demo, true);
     },
   );
@@ -618,6 +622,25 @@ test("Cloudflare Worker and D1 integration", async (t) => {
       );
     },
   );
+  await t.test("live checkout persists reminders in D1 and scheduled handler sends only once", async () => {
+    const result = await place(payload({ weeklyReminder: true }));
+    assert.equal(result.status, 201);
+    const subscription = await DB.prepare("SELECT * FROM vb_reminder_subscriptions WHERE email='test@example.invalid'").first();
+    assert.equal(subscription.enabled, 1);
+    const time = Date.parse("2026-10-25T09:00:00Z");
+    await DB.prepare("UPDATE vb_reminder_subscriptions SET updated_at=?").bind(time-1000).run();
+    let calls = 0;
+    const scheduled = createWorker(async () => { calls++; return Response.json({id:"fake-reminder"}); });
+    const env = {...vars,DB,ORDER_MODE:"live",LIVE_SETUP_CONFIRMED:"true"};
+    await scheduled.scheduled({scheduledTime:time},env);
+    await scheduled.scheduled({scheduledTime:time+60000},env);
+    assert.equal(calls,1);
+    const link = `/api/reminders/unsubscribe/${subscription.token}`;
+    assert.equal((await request(link)).status,200);
+    assert.equal((await DB.prepare("SELECT enabled FROM vb_reminder_subscriptions").first()).enabled,1);
+    assert.equal((await request(link,{method:"POST"})).status,200);
+    assert.equal((await DB.prepare("SELECT enabled FROM vb_reminder_subscriptions").first()).enabled,0);
+  });
   await t.test(
     "historical orders and e-mail retries require admin authentication and CSRF",
     async () => {
